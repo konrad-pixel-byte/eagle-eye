@@ -21,9 +21,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Eagle Eye — Łowca Przetargów Szkoleniowych",
+  title: {
+    default: "Eagle Eye — Łowca Przetargów Szkoleniowych",
+    template: "%s | Eagle Eye",
+  },
   description:
-    "Inteligentna platforma do monitorowania przetargów szkoleniowych, finansowania BUR/KFS i wygrywania zamówień publicznych w Polsce.",
+    "Wygrywaj więcej przetargów szkoleniowych. 5 minut dziennie zamiast 40h miesięcznie. AI monitoring BZP, TED, BUR i KFS w jednym miejscu.",
   keywords: [
     "przetargi szkoleniowe",
     "monitoring przetargów",
@@ -32,7 +35,29 @@ export const metadata: Metadata = {
     "BUR",
     "zamówienia publiczne",
     "firmy szkoleniowe",
+    "kalkulator ofert",
+    "eagle eye",
   ],
+  metadataBase: new URL("https://eagle-eye.hatedapps.pl"),
+  openGraph: {
+    title: "Eagle Eye — Łowca Przetargów Szkoleniowych",
+    description:
+      "Wygrywaj więcej przetargów szkoleniowych. AI monitoring BZP, TED, BUR i KFS. 4 mld PLN rynku czeka na Ciebie.",
+    url: "https://eagle-eye.hatedapps.pl",
+    siteName: "Eagle Eye",
+    locale: "pl_PL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Eagle Eye — Łowca Przetargów Szkoleniowych",
+    description:
+      "Wygrywaj więcej przetargów szkoleniowych. AI monitoring BZP, TED, BUR i KFS.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

@@ -20,6 +20,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { logoutAction } from "@/lib/supabase/actions"
+import { CommandPalette } from "@/components/dashboard/command-palette"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -199,6 +200,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <CommandPalette />
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
         <SidebarContent user={user} pathname={pathname} />
@@ -234,14 +236,22 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
             </SheetContent>
           </Sheet>
 
-          {/* Search */}
-          <div className="relative hidden max-w-xs flex-1 sm:block">
-            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Szukaj przetargów..."
-              className="h-8 pl-8 text-sm"
-            />
-          </div>
+          {/* Search — triggers Command Palette */}
+          <button
+            type="button"
+            onClick={() => {
+              document.dispatchEvent(
+                new KeyboardEvent("keydown", { key: "k", metaKey: true })
+              )
+            }}
+            className="relative hidden h-8 max-w-xs flex-1 items-center gap-2 rounded-lg border border-input bg-transparent px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/50 sm:flex"
+          >
+            <Search className="size-3.5" />
+            <span>Szukaj przetargów...</span>
+            <kbd className="ml-auto pointer-events-none hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-block">
+              ⌘K
+            </kbd>
+          </button>
 
           <div className="ml-auto flex items-center gap-1.5">
             {/* Notifications */}
