@@ -181,7 +181,55 @@ create policy "Users can update own alerts" on public.alerts
 create index idx_alerts_user on public.alerts(user_id, read, sent_at desc);
 
 -- ============================================================
--- 6. KFS NABORY (Krajowy Fundusz Szkoleniowy)
+-- 6. PUP REGISTRY (Powiatowe Urzędy Pracy) — must be before kfs_nabory
+-- ============================================================
+create table public.pup_registry (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  voivodeship text not null,
+  powiat text not null,
+  city text,
+  address text,
+  phone text,
+  email text,
+  website text,
+  lat numeric,
+  lng numeric,
+  created_at timestamptz not null default now()
+);
+
+alter table public.pup_registry enable row level security;
+
+create policy "Authenticated users can view PUP" on public.pup_registry
+  for select using (auth.role() = 'authenticated');
+
+create index idx_pup_voivodeship on public.pup_registry(voivodeship);
+
+-- ============================================================
+-- 7. PSF OPERATORS (Podmiotowy System Finansowania) — must be before bur_nabory
+-- ============================================================
+create table public.psf_operators (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  voivodeship text not null,
+  city text,
+  address text,
+  phone text,
+  email text,
+  website text,
+  coverage_area text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.psf_operators enable row level security;
+
+create policy "Authenticated users can view PSF" on public.psf_operators
+  for select using (auth.role() = 'authenticated');
+
+create index idx_psf_voivodeship on public.psf_operators(voivodeship);
+
+-- ============================================================
+-- 8. KFS NABORY (Krajowy Fundusz Szkoleniowy)
 -- ============================================================
 create table public.kfs_nabory (
   id uuid primary key default uuid_generate_v4(),
@@ -216,32 +264,7 @@ create index idx_kfs_status on public.kfs_nabory(status);
 create index idx_kfs_dates on public.kfs_nabory(application_start, application_end);
 
 -- ============================================================
--- 7. PUP REGISTRY (Powiatowe Urzędy Pracy)
--- ============================================================
-create table public.pup_registry (
-  id uuid primary key default uuid_generate_v4(),
-  name text not null,
-  voivodeship text not null,
-  powiat text not null,
-  city text,
-  address text,
-  phone text,
-  email text,
-  website text,
-  lat numeric,
-  lng numeric,
-  created_at timestamptz not null default now()
-);
-
-alter table public.pup_registry enable row level security;
-
-create policy "Authenticated users can view PUP" on public.pup_registry
-  for select using (auth.role() = 'authenticated');
-
-create index idx_pup_voivodeship on public.pup_registry(voivodeship);
-
--- ============================================================
--- 8. BUR NABORY (Baza Usług Rozwojowych)
+-- 9. BUR NABORY (Baza Usług Rozwojowych)
 -- ============================================================
 create table public.bur_nabory (
   id uuid primary key default uuid_generate_v4(),
@@ -271,29 +294,6 @@ create policy "Authenticated users can view BUR" on public.bur_nabory
 
 create index idx_bur_voivodeship on public.bur_nabory(voivodeship);
 create index idx_bur_status on public.bur_nabory(status);
-
--- ============================================================
--- 9. PSF OPERATORS (Podmiotowy System Finansowania)
--- ============================================================
-create table public.psf_operators (
-  id uuid primary key default uuid_generate_v4(),
-  name text not null,
-  voivodeship text not null,
-  city text,
-  address text,
-  phone text,
-  email text,
-  website text,
-  coverage_area text,
-  created_at timestamptz not null default now()
-);
-
-alter table public.psf_operators enable row level security;
-
-create policy "Authenticated users can view PSF" on public.psf_operators
-  for select using (auth.role() = 'authenticated');
-
-create index idx_psf_voivodeship on public.psf_operators(voivodeship);
 
 -- ============================================================
 -- Updated_at trigger function

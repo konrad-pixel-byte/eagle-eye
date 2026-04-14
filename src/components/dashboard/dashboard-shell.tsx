@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { logoutAction } from "@/lib/supabase/actions"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -129,8 +130,8 @@ function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
   const initials = getInitials(user.full_name, user.email)
   const displayName = user.full_name ?? user.email
 
-  async function handleLogout() {
-    router.push("/auth/login")
+  function handleLogout() {
+    logoutAction()
   }
 
   return (
@@ -192,8 +193,8 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   const displayName = user.full_name ?? user.email
   const router = useRouter()
 
-  async function handleLogout() {
-    router.push("/auth/login")
+  function handleLogout() {
+    logoutAction()
   }
 
   return (
