@@ -17,58 +17,60 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0EA5E9]">
-            <Eye className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-lg font-semibold tracking-tight">
+    <header className="fixed top-0 z-50 w-full">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <Eye className="h-5 w-5 text-[#0EA5E9]" strokeWidth={1.5} />
+          <span className="text-sm font-semibold tracking-tight text-zinc-200">
             Eagle Eye
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        {/* Desktop nav — minimal */}
+        <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-200"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <Link
             href="/auth/login"
-            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "text-zinc-500 hover:text-zinc-200"
+            )}
           >
-            Zaloguj się
+            Zaloguj sie
           </Link>
           <Link
             href="/auth/signup"
             className={cn(
               buttonVariants({ size: "sm" }),
-              "bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]/90"
+              "bg-zinc-100 text-zinc-950 hover:bg-white active:scale-[0.98] transition-all"
             )}
           >
-            Rozpocznij za darmo
+            Rozpocznij
           </Link>
         </div>
 
-        {/* Mobile nav */}
+        {/* Mobile */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
             render={
-              <Button variant="ghost" size="icon" className="md:hidden" />
+              <Button variant="ghost" size="icon" className="md:hidden text-zinc-400" />
             }
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5" strokeWidth={1.5} />
           </SheetTrigger>
-          <SheetContent side="right" className="w-72">
+          <SheetContent side="right" className="w-72 bg-zinc-950 border-zinc-800">
             <SheetTitle className="sr-only">Menu nawigacyjne</SheetTitle>
             <nav className="flex flex-col gap-4 pt-8">
               {navLinks.map((link) => (
@@ -76,7 +78,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-200"
                 >
                   {link.label}
                 </a>
@@ -84,18 +86,21 @@ export function Navbar() {
               <div className="mt-4 flex flex-col gap-2">
                 <Link
                   href="/auth/login"
-                  className={cn(buttonVariants({ variant: "outline" }))}
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "border-zinc-800 text-zinc-400"
+                  )}
                 >
-                  Zaloguj się
+                  Zaloguj sie
                 </Link>
                 <Link
                   href="/auth/signup"
                   className={cn(
                     buttonVariants(),
-                    "bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]/90"
+                    "bg-zinc-100 text-zinc-950 hover:bg-white"
                   )}
                 >
-                  Rozpocznij za darmo
+                  Rozpocznij
                 </Link>
               </div>
             </nav>

@@ -3,83 +3,74 @@ import { Eye } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer id="kontakt" className="border-t border-border/40 bg-muted/20">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-start sm:justify-between">
-          {/* Logo */}
-          <div className="flex flex-col items-center gap-3 sm:items-start">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0EA5E9]">
-                <Eye className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-semibold tracking-tight">
+    <footer id="kontakt" className="border-t border-zinc-800/60">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="grid gap-8 sm:grid-cols-[1fr_auto_auto]">
+          {/* Brand */}
+          <div>
+            <Link href="/" className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-[#0EA5E9]" strokeWidth={1.5} />
+              <span className="text-sm font-semibold tracking-tight text-zinc-300">
                 Eagle Eye
               </span>
             </Link>
-            <p className="max-w-xs text-center text-sm text-muted-foreground sm:text-left">
-              Inteligentna platforma do monitorowania przetargów szkoleniowych i
-              finansowania BUR/KFS w Polsce.
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-600">
+              Monitoring przetargow szkoleniowych, finansowania BUR/KFS
+              i narzedzia do wygrywania zamowien publicznych.
             </p>
           </div>
 
           {/* Links */}
-          <div className="grid grid-cols-2 gap-8 text-center sm:text-left">
-            <div>
-              <h4 className="text-sm font-semibold">Produkt</h4>
-              <ul className="mt-3 space-y-2">
-                <li>
-                  <a
-                    href="#funkcje"
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    Funkcje
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#cennik"
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    Cennik
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    href="/auth/signup"
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    Rejestracja
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold">Firma</h4>
-              <ul className="mt-3 space-y-2">
-                <li>
-                  <span className="text-sm text-muted-foreground">
-                    kontakt@eagleeye.pl
-                  </span>
-                </li>
-                <li>
-                  <span className="text-sm text-muted-foreground">
-                    Polityka prywatności
-                  </span>
-                </li>
-                <li>
-                  <span className="text-sm text-muted-foreground">
-                    Regulamin
-                  </span>
-                </li>
-              </ul>
-            </div>
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-700">
+              Produkt
+            </p>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <a href="#funkcje" className="text-xs text-zinc-500 hover:text-zinc-300">
+                  Funkcje
+                </a>
+              </li>
+              <li>
+                <a href="#cennik" className="text-xs text-zinc-500 hover:text-zinc-300">
+                  Cennik
+                </a>
+              </li>
+              <li>
+                <Link href="/auth/signup" className="text-xs text-zinc-500 hover:text-zinc-300">
+                  Rejestracja
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-700">
+              Kontakt
+            </p>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <span className="text-xs text-zinc-600">
+                  kontakt@eagleeye.pl
+                </span>
+              </li>
+              <li>
+                <span className="text-xs text-zinc-600">
+                  Polityka prywatnosci
+                </span>
+              </li>
+              <li>
+                <span className="text-xs text-zinc-600">
+                  Regulamin
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border/40 pt-6 text-center">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Eagle Eye. Wszelkie prawa
-            zastrzeżone.
+        <div className="mt-10 border-t border-zinc-800/40 pt-6">
+          <p className="font-mono text-[10px] text-zinc-700">
+            &copy; {new Date().getFullYear()} Eagle Eye. Wszelkie prawa zastrzezone.
           </p>
         </div>
       </div>

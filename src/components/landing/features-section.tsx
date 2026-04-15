@@ -1,3 +1,7 @@
+"use client";
+
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import {
   Bell,
   Brain,
@@ -8,89 +12,133 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const features = [
+interface Feature {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  span: string; // grid span class
+}
+
+const features: Feature[] = [
   {
     icon: Search,
     title: "Monitoring 24/7",
     description:
-      "Automatyczny monitoring BZP, TED i Bazy Konkurencyjności. Nowe przetargi szkoleniowe trafiają do Ciebie w ciągu minut.",
+      "BZP, TED, Baza Konkurencyjnosci. Nowe przetargi szkoleniowe w minuty od publikacji. Zero recznego przeglladania.",
+    span: "md:col-span-2 md:row-span-2",
   },
   {
     icon: Brain,
     title: "AI Bid Coach",
     description:
-      "Sztuczna inteligencja analizuje SWZ i podpowiada jak przygotować zwycięską ofertę. Benchmarki cenowe, scoring szans.",
+      "Analiza SWZ, benchmarki cenowe, scoring szans na wygranie. Coaching ofertowy, nie tylko dane.",
+    span: "md:col-span-1",
   },
   {
     icon: Bell,
-    title: "Inteligentne alerty",
+    title: "Alerty dopasowane do profilu",
     description:
-      "Spersonalizowane powiadomienia o przetargach dopasowanych do Twojego profilu — email, push, SMS.",
-  },
-  {
-    icon: Calculator,
-    title: "Kalkulator ofert",
-    description:
-      "Dedykowany kalkulator dla branży szkoleniowej: osobodzień, stawka trenera, materiały, catering, marża.",
+      "Email, push, SMS — co chcesz, kiedy chcesz. Spersonalizowane pod Twoje CPV i regiony.",
+    span: "md:col-span-1",
   },
   {
     icon: Map,
-    title: "Monitoring KFS i BUR",
+    title: "KFS + BUR w jednym",
     description:
-      "Jedyne narzędzie łączące przetargi + nabory KFS z 340 PUP-ów + nabory BUR od 40 operatorów PSF.",
+      "Jedyne narzedzie laczace przetargi + nabory KFS z 340 PUP-ow + nabory BUR od 40 operatorow PSF. Pelen obraz finansowania.",
+    span: "md:col-span-2",
+  },
+  {
+    icon: Calculator,
+    title: "Kalkulator ofert szkoleniowych",
+    description:
+      "Osobodzien, stawka trenera, materialy, catering, marza. Porownanie z historycznymi zwycieskimi cenami.",
+    span: "md:col-span-1",
   },
   {
     icon: GraduationCap,
     title: "Akademia ZP",
     description:
-      "Bezpłatny kurs zamówień publicznych z certyfikatem. Od podstaw PZP po zaawansowane strategie wygrywania.",
+      "Darmowy kurs z certyfikatem. Od podstaw PZP po strategie wygrywania przetargow.",
+    span: "md:col-span-1",
   },
   {
     icon: Shield,
     title: "Analiza konkurencji",
     description:
-      "Kto wygrywa przetargi w Twoim regionie? Za ile? Ile ofert było? Śledź konkurentów i ucz się od najlepszych.",
+      "Kto wygrywa w Twoim regionie, za ile, ile ofert bylo. Watch list na konkurentow.",
+    span: "md:col-span-1",
   },
   {
     icon: Zap,
-    title: "Silicon Valley UX",
+    title: "Cmd+K i skroty klawiszowe",
     description:
-      "Nowoczesny design inspirowany Linear i Vercel. Dark mode, Command Palette (⌘K), skróty klawiszowe.",
+      "Command palette, keyboard-first navigation. Zbudowane dla ludzi, ktorzy pracuja szybko.",
+    span: "md:col-span-1",
   },
 ];
 
+function FeatureTile({ feature, index }: { feature: Feature; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
+
+  const isLarge = feature.span.includes("row-span-2");
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{
+        type: "spring",
+        stiffness: 80,
+        damping: 20,
+        delay: index * 0.05,
+      }}
+      className={`group relative rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-6 transition-colors hover:border-zinc-700/80 hover:bg-zinc-900/60 ${feature.span}`}
+    >
+      {/* Inner refraction border — liquid glass */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
+
+      <div className="relative">
+        <feature.icon
+          className="h-5 w-5 text-zinc-500 transition-colors group-hover:text-[#0EA5E9]"
+          strokeWidth={1.5}
+        />
+
+        <h3 className={`mt-4 font-semibold tracking-tight text-zinc-200 ${isLarge ? "text-lg" : "text-sm"}`}>
+          {feature.title}
+        </h3>
+
+        <p className={`mt-2 leading-relaxed text-zinc-500 ${isLarge ? "text-sm max-w-[50ch]" : "text-xs"}`}>
+          {feature.description}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 export function FeaturesSection() {
   return (
-    <section id="funkcje" className="py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#F59E0B]/20 bg-[#F59E0B]/10 px-4 py-1.5 text-sm font-medium text-[#F59E0B]">
+    <section id="funkcje" className="border-t border-zinc-800/60 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-12 max-w-md">
+          <p className="font-mono text-xs uppercase tracking-widest text-zinc-600">
             Funkcje
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Wszystko, czego potrzebujesz do wygrywania
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Nie tylko monitoring — pełny arsenał narzędzi dla firm szkoleniowych
-            walczących o przetargi publiczne.
           </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
+            Nie tylko monitoring.
+            <br />
+            <span className="text-zinc-500">Pelny arsenal.</span>
+          </h2>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="group relative rounded-xl border border-border/50 bg-card p-6 transition-all hover:border-[#0EA5E9]/30 hover:shadow-lg hover:shadow-[#0EA5E9]/5"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#0EA5E9]/10 text-[#0EA5E9] transition-colors group-hover:bg-[#0EA5E9]/20">
-                <feature.icon className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-semibold">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {feature.description}
-              </p>
-            </div>
+        {/* Bento grid — asymmetric, not 4-equal-columns */}
+        <div className="grid gap-3 md:grid-cols-4 md:auto-rows-[minmax(140px,auto)]">
+          {features.map((feature, i) => (
+            <FeatureTile key={feature.title} feature={feature} index={i} />
           ))}
         </div>
       </div>

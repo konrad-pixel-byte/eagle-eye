@@ -1,44 +1,61 @@
+"use client";
+
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export function CTASection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+
   return (
-    <section className="py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] p-8 sm:p-12 lg:p-16">
-          {/* Decorative elements */}
-          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-[#F59E0B]/20 blur-3xl" />
+    <section className="border-t border-zinc-800/60 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ type: "spring", stiffness: 60, damping: 20 }}
+          className="relative overflow-hidden rounded-2xl border border-zinc-800/60 bg-zinc-900/40 px-8 py-16 md:px-16 md:py-20"
+        >
+          {/* Subtle accent glow — not blob slop, just a thin line */}
+          <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-[#0EA5E9]/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]" />
 
-          <div className="relative mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Przestań tracić czas na ręczne szukanie.
-            </h2>
-            <p className="mt-4 text-lg text-white/80">
-              Średnio użytkownik Pro oszczędza 12 godzin tygodniowo i zwiększa
-              przychody z przetargów o 35% w ciągu 3 miesięcy.
-            </p>
+          <div className="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tighter text-zinc-200 md:text-4xl">
+                Przestaniesz tracic czas
+                <br />
+                <span className="text-zinc-500">na reczne szukanie.</span>
+              </h2>
+              <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-zinc-500">
+                Przecietny uzytkownik Pro oszczedza 12 godzin tygodniowo.
+                624 godziny rocznie. To 3.5 etatu, ktore mozesz przeznaczyc
+                na skladanie ofert zamiast ich szukania.
+              </p>
+            </div>
 
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="flex flex-col items-start gap-3 lg:items-end">
               <Link
                 href="/auth/signup"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "bg-white text-[#0EA5E9] hover:bg-white/90"
+                  "bg-zinc-100 text-zinc-950 hover:bg-white active:scale-[0.98] transition-all"
                 )}
               >
-                Rozpocznij za darmo
+                Zacznij za darmo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+              <p className="text-xs text-zinc-600">
+                Bez karty kredytowej. 30 dni pelnego dostepu.
+              </p>
             </div>
-
-            <p className="mt-4 text-sm text-white/60">
-              Bez karty kredytowej. 30 dni pełnego dostępu.
-            </p>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

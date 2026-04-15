@@ -1,162 +1,190 @@
+"use client";
+
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
-const tiers = [
+interface Tier {
+  name: string;
+  audience: string;
+  price: string;
+  period: string;
+  cta: string;
+  href: string;
+  highlighted: boolean;
+  features: string[];
+}
+
+const tiers: Tier[] = [
   {
     name: "Free",
-    description: "Na start — sprawdź wartość Eagle Eye",
+    audience: "Na rozpoznanie rynku",
     price: "0",
     period: "na zawsze",
-    cta: "Rozpocznij za darmo",
+    cta: "Rozpocznij",
     href: "/auth/signup",
     highlighted: false,
     features: [
-      "10 przetargów/dzień (nagłówki)",
-      "Akademia ZP — Moduł 1-2",
+      "10 przetargow dziennie (naglowki)",
+      "Akademia ZP — Modul 1-2",
       "Alerty email 1x/dziennie",
       "Podstawowe filtry CPV",
     ],
   },
   {
     name: "Basic",
-    description: "Dla firm startujących w przetargach",
+    audience: "Dla firm startujacych w przetargach",
     price: "299",
-    period: "/miesiąc",
-    cta: "Wypróbuj 14 dni za darmo",
+    period: "/mies.",
+    cta: "14 dni za darmo",
     href: "/auth/signup?plan=basic",
     highlighted: false,
     features: [
-      "Nieograniczone przetargi",
-      "Pełne detale + SWZ",
+      "Nieograniczone przetargi + pelne detale",
       "Alerty 2x/dziennie (email + push)",
-      "Filtry CPV / region / budżet",
-      "Zapisywanie przetargów",
-      "Kalkulator ofert (basic)",
-      "Akademia ZP kompletna + certyfikat",
-      "1 użytkownik",
+      "Filtry CPV / region / budzet",
+      "Kalkulator ofert",
+      "Akademia ZP + certyfikat",
+      "1 uzytkownik",
     ],
   },
   {
     name: "Pro",
-    description: "Dla firm wygrywających 2-5 przetargów/mies.",
+    audience: "Dla firm wygrywajacych 2-5 przetargow/mies.",
     price: "599",
-    period: "/miesiąc",
-    cta: "Wypróbuj 14 dni za darmo",
+    period: "/mies.",
+    cta: "14 dni za darmo",
     href: "/auth/signup?plan=pro",
     highlighted: true,
-    badge: "Najpopularniejszy",
     features: [
-      "Wszystko z Basic +",
-      "AI Bid Coach (sugestie, benchmarki)",
+      "Wszystko z Basic",
+      "AI Bid Coach — sugestie + benchmarki",
       "Alerty real-time (push w 30 min)",
-      "Wyniki przetargów (kto wygrał, za ile)",
-      "Kalkulator zaawansowany",
+      "Wyniki przetargow (kto wygral, za ile)",
       "Analiza konkurencji",
       "Monitoring KFS + BUR",
-      "Strefa Firm Premium",
-      "Do 3 użytkowników",
+      "Do 3 uzytkownikow",
     ],
   },
   {
     name: "Enterprise",
-    description: "Dla zespołów 5+ osób i dużych firm",
+    audience: "Zespoly 5+ osob, duze organizacje",
     price: "1 799",
-    period: "/miesiąc",
-    cta: "Skontaktuj się",
+    period: "/mies.",
+    cta: "Porozmawiajmy",
     href: "#kontakt",
     highlighted: false,
     features: [
-      "Wszystko z Pro +",
-      "Nieograniczona liczba użytkowników",
-      "API access + webhook",
-      "SMS alerty",
-      "Advanced analytics + raporty",
+      "Wszystko z Pro",
+      "Nieograniczeni uzytkownicy",
+      "API + webhook + SMS",
+      "Advanced analytics",
       "Dedicated Account Manager",
-      "Onboarding 1:1",
       "SLA 99.9%",
     ],
   },
 ];
 
+function PricingCard({ tier, index }: { tier: Tier; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{
+        type: "spring",
+        stiffness: 80,
+        damping: 20,
+        delay: index * 0.08,
+      }}
+      className={cn(
+        "relative flex flex-col rounded-2xl p-6 transition-colors",
+        tier.highlighted
+          ? "border border-zinc-100/10 bg-zinc-100/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          : "border border-zinc-800/40"
+      )}
+    >
+      {tier.highlighted && (
+        <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#0EA5E9]/50 to-transparent" />
+      )}
+
+      <div>
+        <p className="font-mono text-xs uppercase tracking-widest text-zinc-600">
+          {tier.name}
+        </p>
+        <p className="mt-1 text-xs text-zinc-500">{tier.audience}</p>
+      </div>
+
+      <div className="mt-4 flex items-baseline gap-1">
+        <span className="font-mono text-3xl font-bold tracking-tight text-zinc-100">
+          {tier.price}
+        </span>
+        <span className="text-sm text-zinc-600">
+          PLN{tier.period}
+        </span>
+      </div>
+
+      <Link
+        href={tier.href}
+        className={cn(
+          buttonVariants({
+            variant: tier.highlighted ? "default" : "outline",
+            size: "default",
+          }),
+          "mt-5 w-full active:scale-[0.98] transition-all",
+          tier.highlighted
+            ? "bg-zinc-100 text-zinc-950 hover:bg-white"
+            : "border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+        )}
+      >
+        {tier.cta}
+        {tier.highlighted && <ArrowRight className="ml-2 h-3.5 w-3.5" />}
+      </Link>
+
+      <ul className="mt-6 flex-1 space-y-2.5 border-t border-zinc-800/40 pt-6">
+        {tier.features.map((feature) => (
+          <li
+            key={feature}
+            className="flex items-start gap-2.5 text-sm text-zinc-500"
+          >
+            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-600" strokeWidth={2} />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  );
+}
+
 export function PricingSection() {
   return (
-    <section
-      id="cennik"
-      className="border-y border-border/40 bg-muted/30 py-16 sm:py-24"
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Prosta cena. Ogromna wartość.
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            249 PLN to koszt 2.5 godzin pracy specjalisty. Jeden wygrany
-            przetarg = 100 000+ PLN. ROI: 1 800%.
+    <section id="cennik" className="border-t border-zinc-800/60 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-12 grid gap-4 lg:grid-cols-[1fr_1fr] lg:items-end">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-zinc-600">
+              Cennik
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
+              299 PLN to koszt 2.5h pracy specjalisty.
+            </h2>
+          </div>
+          <p className="max-w-[50ch] text-sm leading-relaxed text-zinc-500 lg:text-right">
+            Jeden wygrany przetarg = 100 000+ PLN.
+            30 dni pelnego dostepu. Nie spodobalo sie? Zwrot bez pytan.
           </p>
         </div>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-4">
-          {tiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={cn(
-                "relative flex flex-col rounded-xl border p-6 transition-all",
-                tier.highlighted
-                  ? "border-[#0EA5E9] bg-card shadow-lg shadow-[#0EA5E9]/10"
-                  : "border-border/50 bg-card hover:border-border"
-              )}
-            >
-              {tier.badge && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]">
-                  {tier.badge}
-                </Badge>
-              )}
-
-              <div>
-                <h3 className="text-lg font-semibold">{tier.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {tier.description}
-                </p>
-              </div>
-
-              <div className="mt-4 flex items-baseline">
-                <span className="text-3xl font-bold tracking-tight">
-                  {tier.price}
-                </span>
-                <span className="ml-1 text-sm text-muted-foreground">
-                  PLN{tier.period}
-                </span>
-              </div>
-
-              <Link
-                href={tier.href}
-                className={cn(
-                  buttonVariants({
-                    variant: tier.highlighted ? "default" : "outline",
-                  }),
-                  "mt-6 w-full",
-                  tier.highlighted &&
-                    "bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]/90"
-                )}
-              >
-                {tier.cta}
-              </Link>
-
-              <ul className="mt-6 flex-1 space-y-3">
-                {tier.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-start gap-2 text-sm text-muted-foreground"
-                  >
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#10B981]" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Grid: 4 columns on desktop, with Pro visually elevated */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {tiers.map((tier, i) => (
+            <PricingCard key={tier.name} tier={tier} index={i} />
           ))}
         </div>
       </div>

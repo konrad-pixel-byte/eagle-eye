@@ -23,7 +23,7 @@ import { logoutAction } from "@/lib/supabase/actions"
 import { CommandPalette } from "@/components/dashboard/command-palette"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
+
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sheet,
@@ -199,7 +199,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex min-h-[100dvh] overflow-hidden bg-background">
       <CommandPalette />
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">

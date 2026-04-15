@@ -1,96 +1,61 @@
-import {
-  Banknote,
-  Building2,
-  Clock,
-  FileText,
-  PiggyBank,
-  Target,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+"use client";
+
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 const stats = [
-  {
-    value: "4 mld PLN",
-    label: "Roczny rynek usług szkoleniowych",
-    icon: Banknote,
-    source: "PARP",
-  },
-  {
-    value: "7 mld PLN",
-    label: "Funduszy UE na szkolenia do 2027",
-    icon: PiggyBank,
-    source: "MFiPR",
-  },
-  {
-    value: "80-90%",
-    label: "Szkolenia finansowane z funduszy publicznych",
-    icon: TrendingUp,
-    source: "MFiPR",
-  },
-  {
-    value: "60 000",
-    label: "Firm szkoleniowych w Polsce",
-    icon: Building2,
-    source: "GUS/REGON",
-  },
-  {
-    value: "15-25",
-    label: "Nowych przetargów szkoleniowych dziennie",
-    icon: FileText,
-    source: "BZP",
-  },
-  {
-    value: "~2.3",
-    label: "Średnio ofert na przetarg — Twoja szansa to 43%",
-    icon: Target,
-    source: "UZP",
-  },
-  {
-    value: "150K PLN",
-    label: "Średnia wartość przetargu szkoleniowego",
-    icon: Users,
-    source: "BZP",
-  },
-  {
-    value: "12h/tyg",
-    label: "Oszczędzasz dzięki automatyzacji",
-    icon: Clock,
-    source: "Kalkulacja",
-  },
+  { value: "4 mld PLN", label: "Roczny rynek szkolen publicznych", source: "PARP" },
+  { value: "7 mld PLN", label: "Fundusze UE na szkolenia do 2027", source: "MFiPR" },
+  { value: "60 000", label: "Firm szkoleniowych w Polsce", source: "GUS" },
+  { value: "15-25", label: "Nowych przetargow szkoleniowych dziennie", source: "BZP" },
+  { value: "150K PLN", label: "Srednia wartosc przetargu", source: "BZP" },
+  { value: "~2.3", label: "Ofert na przetarg — niska konkurencja", source: "UZP" },
+  { value: "80-90%", label: "Finansowane z funduszy publicznych", source: "MFiPR" },
+  { value: "12h/tydz", label: "Oszczedzasz dzieki automatyzacji", source: "Kalkulacja" },
 ];
+
+function StatItem({ stat, index }: { stat: typeof stats[number]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ type: "spring", stiffness: 80, damping: 20, delay: index * 0.06 }}
+      className="group relative"
+    >
+      <div className="flex items-baseline gap-3">
+        <span className="font-mono text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
+          {stat.value}
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-zinc-500">{stat.label}</p>
+      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-zinc-700">
+        {stat.source}
+      </p>
+    </motion.div>
+  );
+}
 
 export function StatsSection() {
   return (
-    <section className="border-y border-border/40 bg-muted/30 py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Rynek, który czeka na Ciebie
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Twarde dane, nie obietnice. Oto dlaczego przetargi szkoleniowe to
-            Twoja szansa.
+    <section className="border-t border-zinc-800/60 py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-12 max-w-md">
+          <p className="font-mono text-xs uppercase tracking-widest text-zinc-600">
+            Twarde dane
           </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
+            Rynek, ktory nie blefuje.
+          </h2>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="group relative rounded-xl border border-border/50 bg-card p-5 transition-all hover:border-[#0EA5E9]/30 hover:shadow-lg hover:shadow-[#0EA5E9]/5"
-            >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#0EA5E9]/10 text-[#0EA5E9] transition-colors group-hover:bg-[#0EA5E9]/20">
-                <stat.icon className="h-5 w-5" />
-              </div>
-              <p className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-              <p className="mt-2 text-xs text-muted-foreground/60">
-                Źródło: {stat.source}
-              </p>
-            </div>
+        {/* 2-column asymmetric grid, not 4x2 cards */}
+        <div className="grid gap-x-16 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, i) => (
+            <StatItem key={stat.label} stat={stat} index={i} />
           ))}
         </div>
       </div>
