@@ -1,14 +1,18 @@
 import { createClient } from "@/lib/supabase/server"
+import { getUserBookmarks } from "@/lib/actions/bookmarks"
 import { TenderListClient } from "./tender-list-client"
 import type { Tender } from "@/lib/types"
 
 export default async function PrzetargiPage() {
   const supabase = await createClient()
 
-  const { data: tenders, error } = await supabase
-    .from("tenders")
-    .select("*")
-    .order("published_at", { ascending: false })
+  const [{ data: tenders, error }, bookmarkedIds] = await Promise.all([
+    supabase
+      .from("tenders")
+      .select("*")
+      .order("published_at", { ascending: false }),
+    getUserBookmarks(),
+  ])
 
   if (error) {
     return (
@@ -20,5 +24,10 @@ export default async function PrzetargiPage() {
     )
   }
 
-  return <TenderListClient tenders={(tenders ?? []) as Tender[]} />
+  return (
+    <TenderListClient
+      tenders={(tenders ?? []) as Tender[]}
+      bookmarkedIds={bookmarkedIds}
+    />
+  )
 }

@@ -29,6 +29,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
+import { getUserBookmarks } from "@/lib/actions/bookmarks"
+import { BookmarkButton } from "@/components/dashboard/bookmark-button"
 import type { Tender } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
@@ -113,15 +115,16 @@ export default async function Page({
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: tender } = await supabase
-    .from("tenders")
-    .select("*")
-    .eq("id", id)
-    .single<Tender>()
+  const [{ data: tender }, bookmarkedIds] = await Promise.all([
+    supabase.from("tenders").select("*").eq("id", id).single<Tender>(),
+    getUserBookmarks(),
+  ])
 
   if (!tender) {
     notFound()
   }
+
+  const isBookmarked = bookmarkedIds.includes(tender.id)
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -367,13 +370,7 @@ export default async function Page({
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2"
-                >
-                  <BookmarkIcon className="size-4 text-amber-400" />
-                  Zapisz przetarg
-                </Button>
+                <BookmarkButton tenderId={tender.id} isBookmarked={isBookmarked} />
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"

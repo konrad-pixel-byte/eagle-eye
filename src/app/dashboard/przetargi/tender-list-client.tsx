@@ -26,7 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { SearchIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, Bookmark } from "lucide-react"
+import { toggleBookmark } from "@/lib/actions/bookmarks"
 import type { Tender } from "@/lib/types"
 
 const WOJEWODZTWA = [
@@ -127,9 +128,10 @@ function AiScoreIndicator({ score }: { score: number }) {
 
 interface TenderListClientProps {
   tenders: Tender[]
+  bookmarkedIds: string[]
 }
 
-export function TenderListClient({ tenders }: TenderListClientProps) {
+export function TenderListClient({ tenders, bookmarkedIds }: TenderListClientProps) {
   const router = useRouter()
 
   const [search, setSearch] = useState("")
@@ -139,9 +141,46 @@ export function TenderListClient({ tenders }: TenderListClientProps) {
   const [budzetMin, setBudzetMin] = useState("")
   const [budzetMax, setBudzetMax] = useState("")
   const [page, setPage] = useState(1)
+  const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set(bookmarkedIds))
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(() => new Set())
 
   function resetPage() {
     setPage(1)
+  }
+
+  async function handleToggleBookmark(e: React.MouseEvent, tenderId: string) {
+    e.stopPropagation()
+    if (togglingIds.has(tenderId)) return
+    setTogglingIds((prev) => new Set(prev).add(tenderId))
+    const wasBookmarked = savedIds.has(tenderId)
+    setSavedIds((prev) => {
+      const next = new Set(prev)
+      if (wasBookmarked) {
+        next.delete(tenderId)
+      } else {
+        next.add(tenderId)
+      }
+      return next
+    })
+    try {
+      await toggleBookmark(tenderId)
+    } catch {
+      setSavedIds((prev) => {
+        const next = new Set(prev)
+        if (wasBookmarked) {
+          next.add(tenderId)
+        } else {
+          next.delete(tenderId)
+        }
+        return next
+      })
+    } finally {
+      setTogglingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(tenderId)
+        return next
+      })
+    }
   }
 
   const filtered = useMemo(() => {
@@ -302,13 +341,14 @@ export function TenderListClient({ tenders }: TenderListClientProps) {
                 <TableHead>Termin składania</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="pr-4">AI Score</TableHead>
+                <TableHead className="w-8 pr-4" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedItems.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="py-12 text-center text-muted-foreground"
                   >
                     Brak wyników pasujących do wybranych filtrów.
@@ -372,6 +412,25 @@ export function TenderListClient({ tenders }: TenderListClientProps) {
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
+                    </TableCell>
+                    <TableCell className="pr-4 w-8">
+                      <button
+                        onClick={(e) => handleToggleBookmark(e, tender.id)}
+                        disabled={togglingIds.has(tender.id)}
+                        className="p-1 rounded transition-colors hover:bg-muted disabled:opacity-50 disabled:pointer-events-none"
+                        aria-label={savedIds.has(tender.id) ? "Usuń z zapisanych" : "Zapisz przetarg"}
+                      >
+                        {togglingIds.has(tender.id) ? (
+                          <span className="block size-3.5 rounded-full border-2 border-zinc-500 border-t-transparent animate-spin" />
+                        ) : (
+                          <Bookmark
+                            size={14}
+                            fill={savedIds.has(tender.id) ? "#F59E0B" : "none"}
+                            style={{ color: savedIds.has(tender.id) ? "#F59E0B" : undefined }}
+                            className={savedIds.has(tender.id) ? "" : "text-zinc-500"}
+                          />
+                        )}
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))
