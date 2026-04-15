@@ -24,15 +24,13 @@ function StatItem({ stat, index }: { stat: typeof stats[number]; index: number }
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ type: "spring", stiffness: 80, damping: 20, delay: index * 0.06 }}
-      className="group relative"
+      className="group relative border-l border-zinc-800 pl-4"
     >
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
-          {stat.value}
-        </span>
-      </div>
-      <p className="mt-1 text-sm text-zinc-500">{stat.label}</p>
-      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-zinc-700">
+      <span className="font-mono text-3xl font-bold tracking-tight text-white md:text-4xl">
+        {stat.value}
+      </span>
+      <p className="mt-1.5 text-sm leading-snug text-zinc-400">{stat.label}</p>
+      <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
         {stat.source}
       </p>
     </motion.div>

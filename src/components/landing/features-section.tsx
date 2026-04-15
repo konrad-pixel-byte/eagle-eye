@@ -97,22 +97,22 @@ function FeatureTile({ feature, index }: { feature: Feature; index: number }) {
         damping: 20,
         delay: index * 0.05,
       }}
-      className={`group relative rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-6 transition-colors hover:border-zinc-700/80 hover:bg-zinc-900/60 ${feature.span}`}
+      className={`group relative rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 transition-all hover:border-zinc-700 hover:bg-zinc-800/50 ${feature.span}`}
     >
       {/* Inner refraction border — liquid glass */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
+      <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" />
 
       <div className="relative">
         <feature.icon
-          className="h-5 w-5 text-zinc-500 transition-colors group-hover:text-[#0EA5E9]"
+          className="h-5 w-5 text-zinc-400 transition-colors group-hover:text-[#0EA5E9]"
           strokeWidth={1.5}
         />
 
-        <h3 className={`mt-4 font-semibold tracking-tight text-zinc-200 ${isLarge ? "text-lg" : "text-sm"}`}>
+        <h3 className={`mt-4 font-semibold tracking-tight text-white ${isLarge ? "text-lg" : "text-sm"}`}>
           {feature.title}
         </h3>
 
-        <p className={`mt-2 leading-relaxed text-zinc-500 ${isLarge ? "text-sm max-w-[50ch]" : "text-xs"}`}>
+        <p className={`mt-2 leading-relaxed text-zinc-400 ${isLarge ? "text-sm max-w-[50ch]" : "text-xs"}`}>
           {feature.description}
         </p>
       </div>

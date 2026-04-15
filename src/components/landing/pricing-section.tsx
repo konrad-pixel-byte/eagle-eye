@@ -104,10 +104,10 @@ function PricingCard({ tier, index }: { tier: Tier; index: number }) {
         delay: index * 0.08,
       }}
       className={cn(
-        "relative flex flex-col rounded-2xl p-6 transition-colors",
+        "relative flex flex-col rounded-2xl p-6 transition-all",
         tier.highlighted
-          ? "border border-zinc-100/10 bg-zinc-100/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-          : "border border-zinc-800/40"
+          ? "border border-zinc-700 bg-zinc-900/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_40px_-12px_rgba(14,165,233,0.15)]"
+          : "border border-zinc-800 bg-zinc-900/40"
       )}
     >
       {tier.highlighted && (
@@ -122,7 +122,7 @@ function PricingCard({ tier, index }: { tier: Tier; index: number }) {
       </div>
 
       <div className="mt-4 flex items-baseline gap-1">
-        <span className="font-mono text-3xl font-bold tracking-tight text-zinc-100">
+        <span className="font-mono text-3xl font-bold tracking-tight text-white">
           {tier.price}
         </span>
         <span className="text-sm text-zinc-600">
@@ -151,7 +151,7 @@ function PricingCard({ tier, index }: { tier: Tier; index: number }) {
         {tier.features.map((feature) => (
           <li
             key={feature}
-            className="flex items-start gap-2.5 text-sm text-zinc-500"
+            className="flex items-start gap-2.5 text-sm text-zinc-400"
           >
             <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-600" strokeWidth={2} />
             <span>{feature}</span>
@@ -171,7 +171,7 @@ export function PricingSection() {
             <p className="font-mono text-xs uppercase tracking-widest text-zinc-600">
               Cennik
             </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
+            <h2 className="mt-2 text-2xl font-bold tracking-tighter text-white md:text-3xl">
               299 PLN to koszt 2.5h pracy specjalisty.
             </h2>
           </div>
