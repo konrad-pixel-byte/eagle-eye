@@ -16,16 +16,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Eagle Eye — Monitoring Przetargow Szkoleniowych",
+    default: "Eagle Eye — Monitoring Przetargów Szkoleniowych",
     template: "%s | Eagle Eye",
   },
   description:
-    "Monitoring przetargow szkoleniowych BZP, TED, BUR i KFS. AI scoring, kalkulator ofert, analiza konkurencji.",
+    "Monitoring przetargów szkoleniowych BZP, TED, BUR i KFS. AI scoring, kalkulator ofert, analiza konkurencji.",
   metadataBase: new URL("https://eagle-eye.hatedapps.pl"),
   openGraph: {
-    title: "Eagle Eye — Monitoring Przetargow Szkoleniowych",
+    title: "Eagle Eye — Monitoring Przetargów Szkoleniowych",
     description:
-      "Monitoring przetargow szkoleniowych. AI scoring, kalkulator ofert, analiza konkurencji. 4 mld PLN rynku.",
+      "Monitoring przetargów szkoleniowych. AI scoring, kalkulator ofert, analiza konkurencji. 4 mld PLN rynku.",
     url: "https://eagle-eye.hatedapps.pl",
     siteName: "Eagle Eye",
     locale: "pl_PL",
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Eagle Eye — Monitoring Przetargow Szkoleniowych",
+    title: "Eagle Eye — Monitoring Przetargów Szkoleniowych",
     description:
-      "AI monitoring przetargow szkoleniowych BZP, TED, BUR i KFS.",
+      "AI monitoring przetargów szkoleniowych BZP, TED, BUR i KFS.",
   },
   robots: { index: true, follow: true },
 };
