@@ -55,14 +55,13 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Ustawienia", href: "/dashboard/ustawienia", icon: Settings },
 ]
 
-const NOTIFICATION_COUNT = 3
-
 interface DashboardShellProps {
   children: React.ReactNode
   user: {
     email: string
     full_name?: string
   }
+  unreadAlertCount?: number
 }
 
 function getInitials(name?: string, email?: string): string {
@@ -187,7 +186,7 @@ function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
   )
 }
 
-export function DashboardShell({ children, user }: DashboardShellProps) {
+export function DashboardShell({ children, user, unreadAlertCount = 0 }: DashboardShellProps) {
   const pathname = usePathname()
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const initials = getInitials(user.full_name, user.email)
@@ -259,13 +258,13 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Powiadomienia (${NOTIFICATION_COUNT})`}
+                aria-label={`Powiadomienia (${unreadAlertCount})`}
               >
                 <Bell className="size-4" />
               </Button>
-              {NOTIFICATION_COUNT > 0 && (
+              {unreadAlertCount > 0 && (
                 <span className="pointer-events-none absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-[#0EA5E9] text-[10px] font-semibold text-white">
-                  {NOTIFICATION_COUNT}
+                  {unreadAlertCount}
                 </span>
               )}
             </div>
