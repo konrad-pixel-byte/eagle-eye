@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table"
 import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, Bookmark } from "lucide-react"
 import { toggleBookmark } from "@/lib/actions/bookmarks"
+import { EmptyState } from "@/components/empty-state"
 import type { Tender } from "@/lib/types"
 
 const WOJEWODZTWA = [
@@ -347,11 +348,12 @@ export function TenderListClient({ tenders, bookmarkedIds }: TenderListClientPro
             <TableBody>
               {paginatedItems.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="py-12 text-center text-muted-foreground"
-                  >
-                    Brak wyników pasujących do wybranych filtrów.
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState
+                      icon={SearchIcon}
+                      title="Brak przetargów pasujących do filtrów"
+                      description="Zmień kryteria wyszukiwania lub zresetuj filtry, aby zobaczyć dostępne przetargi."
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

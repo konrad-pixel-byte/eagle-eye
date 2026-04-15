@@ -16,6 +16,7 @@ import {
   LogOut,
   User,
   ChevronDown,
+  Bookmark,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -23,6 +24,7 @@ import { logoutAction } from "@/lib/supabase/actions"
 import { CommandPalette } from "@/components/dashboard/command-palette"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -49,6 +51,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Przetargi", href: "/dashboard/przetargi", icon: FileText },
+  { label: "Zapisane", href: "/dashboard/zapisane", icon: Bookmark },
   { label: "Finansowanie BUR/KFS", href: "/dashboard/finansowanie", icon: Landmark },
   { label: "Akademia", href: "/dashboard/akademia", icon: GraduationCap },
   { label: "Statystyki", href: "/dashboard/statystyki", icon: BarChart3 },
@@ -253,6 +256,9 @@ export function DashboardShell({ children, user, unreadAlertCount = 0 }: Dashboa
           </button>
 
           <div className="ml-auto flex items-center gap-1.5">
+            {/* Theme toggle */}
+            <ThemeToggle />
+
             {/* Notifications */}
             <div className="relative">
               <Button
