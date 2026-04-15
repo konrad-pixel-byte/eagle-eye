@@ -17,6 +17,7 @@ import {
   User,
   ChevronDown,
   Bookmark,
+  Calculator,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -52,6 +53,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Przetargi", href: "/dashboard/przetargi", icon: FileText },
   { label: "Zapisane", href: "/dashboard/zapisane", icon: Bookmark },
+  { label: "Kalkulator", href: "/dashboard/kalkulator", icon: Calculator },
   { label: "Finansowanie BUR/KFS", href: "/dashboard/finansowanie", icon: Landmark },
   { label: "Akademia", href: "/dashboard/akademia", icon: GraduationCap },
   { label: "Statystyki", href: "/dashboard/statystyki", icon: BarChart3 },
