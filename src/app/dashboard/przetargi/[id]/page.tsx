@@ -1,5 +1,4 @@
-"use client"
-
+import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
   Card,
@@ -29,35 +28,14 @@ import {
   StarIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/server"
+import type { Tender } from "@/lib/types"
 
-const MOCK_TENDER = {
-  id: "1",
-  title: "Szkolenia z zakresu obsługi klienta dla pracowników urzędu",
-  zamawiajacy: "Urząd Miasta Warszawa",
-  adresZamawiajacego: "pl. Bankowy 3/5, 00-950 Warszawa",
-  region: "mazowieckie",
-  cpvCodes: [
-    { code: "80533100-0", label: "Usługi szkolenia komputerowego" },
-    { code: "80500000-9", label: "Usługi szkoleniowe" },
-    { code: "80521000-2", label: "Usługi opracowywania programów szkoleniowych" },
-  ],
-  cpvGroup: "Szkolenia personelu",
-  budzetMin: 50000,
-  budzetMax: 150000,
-  opublikowano: "2025-03-01",
-  terminSkladaniaOfert: "2025-05-15",
-  terminNaPytania: "2025-04-30",
-  status: "aktywne" as const,
-  aiScore: 87,
-  dokumenty: [
-    { nazwa: "Specyfikacja Warunków Zamówienia (SWZ)", typ: "swz" },
-    { nazwa: "Formularz ofertowy — Załącznik nr 1", typ: "formularz" },
-    { nazwa: "Wzór umowy — Załącznik nr 2", typ: "zalacznik" },
-    { nazwa: "Opis przedmiotu zamówienia — Załącznik nr 3", typ: "zalacznik" },
-  ],
-}
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-type TenderStatus = "aktywne" | "wygasle" | "rozstrzygniete" | "anulowane"
+type TenderStatus = Tender["status"]
 
 function formatPLN(value: number): string {
   return new Intl.NumberFormat("pl-PL", {
@@ -77,19 +55,19 @@ function formatDate(dateStr: string): string {
 
 function StatusBadge({ status }: { status: TenderStatus }) {
   const config: Record<TenderStatus, { label: string; className: string }> = {
-    aktywne: {
+    active: {
       label: "Aktywne",
       className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
     },
-    wygasle: {
+    expired: {
       label: "Wygasłe",
       className: "bg-muted text-muted-foreground border-border",
     },
-    rozstrzygniete: {
+    awarded: {
       label: "Rozstrzygnięte",
       className: "bg-sky-500/15 text-sky-400 border-sky-500/20",
     },
-    anulowane: {
+    cancelled: {
       label: "Anulowane",
       className: "bg-red-500/15 text-red-400 border-red-500/20",
     },
@@ -114,14 +92,36 @@ function AiScoreBadge({ score }: { score: number }) {
   )
 }
 
-function DocumentIcon({ typ }: { typ: string }) {
-  if (typ === "swz") return <FileTextIcon className="size-4 text-sky-400 shrink-0" />
-  if (typ === "formularz") return <FileIcon className="size-4 text-amber-400 shrink-0" />
+function DocumentTypeIcon({ name }: { name: string }) {
+  const lower = name.toLowerCase()
+  if (lower.includes("swz") || lower.includes("specyfikacja"))
+    return <FileTextIcon className="size-4 text-sky-400 shrink-0" />
+  if (lower.includes("formularz"))
+    return <FileIcon className="size-4 text-amber-400 shrink-0" />
   return <PaperclipIcon className="size-4 text-muted-foreground shrink-0" />
 }
 
-export default function PrzetargDetailPage() {
-  const tender = MOCK_TENDER
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: tender } = await supabase
+    .from("tenders")
+    .select("*")
+    .eq("id", id)
+    .single<Tender>()
+
+  if (!tender) {
+    notFound()
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -146,7 +146,9 @@ export default function PrzetargDetailPage() {
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={tender.status} />
-          <AiScoreBadge score={tender.aiScore} />
+          {tender.ai_relevance_score !== null && (
+            <AiScoreBadge score={tender.ai_relevance_score} />
+          )}
         </div>
       </div>
 
@@ -166,17 +168,23 @@ export default function PrzetargDetailPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-                <BrainIcon className="size-10 text-sky-400/50" />
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-foreground">
-                    Analiza AI zostanie wygenerowana automatycznie...
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    System przetworzy dokumenty i przygotuje szczegółowe podsumowanie wraz z oceną szansy na wygraną.
-                  </p>
+              {tender.ai_summary ? (
+                <p className="text-sm text-foreground leading-relaxed">
+                  {tender.ai_summary}
+                </p>
+              ) : (
+                <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+                  <BrainIcon className="size-10 text-sky-400/50" />
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-medium text-foreground">
+                      Analiza AI zostanie wygenerowana automatycznie...
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      System przetworzy dokumenty i przygotuje szczegółowe podsumowanie wraz z oceną szansy na wygraną.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -187,96 +195,132 @@ export default function PrzetargDetailPage() {
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <BuildingIcon className="size-3.5" />
-                    Zamawiający
-                  </dt>
-                  <dd className="text-sm text-foreground font-medium">
-                    {tender.zamawiajacy}
-                  </dd>
-                  <dd className="text-xs text-muted-foreground">
-                    {tender.adresZamawiajacego}
-                  </dd>
-                </div>
+                {tender.contracting_authority && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <BuildingIcon className="size-3.5" />
+                      Zamawiający
+                    </dt>
+                    <dd className="text-sm text-foreground font-medium">
+                      {tender.contracting_authority}
+                    </dd>
+                    {tender.contracting_authority_address && (
+                      <dd className="text-xs text-muted-foreground">
+                        {tender.contracting_authority_address}
+                      </dd>
+                    )}
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <MapPinIcon className="size-3.5" />
-                    Region
-                  </dt>
-                  <dd className="text-sm text-foreground font-medium capitalize">
-                    {tender.region}
-                  </dd>
-                </div>
+                {tender.voivodeship && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <MapPinIcon className="size-3.5" />
+                      Region
+                    </dt>
+                    <dd className="text-sm text-foreground font-medium capitalize">
+                      {tender.voivodeship}
+                      {tender.city ? ` — ${tender.city}` : ""}
+                    </dd>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1 sm:col-span-2">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <TagIcon className="size-3.5" />
-                    Kody CPV
-                  </dt>
-                  <dd className="flex flex-col gap-1.5">
-                    {tender.cpvCodes.map((cpv) => (
-                      <div key={cpv.code} className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {cpv.code}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {cpv.label}
-                        </span>
-                      </div>
-                    ))}
-                  </dd>
-                </div>
+                {tender.cpv_codes && tender.cpv_codes.length > 0 && (
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <TagIcon className="size-3.5" />
+                      Kody CPV
+                    </dt>
+                    <dd className="flex flex-col gap-1.5">
+                      {tender.cpv_codes.map((code) => (
+                        <div key={code} className="flex items-center gap-2">
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {code}
+                          </Badge>
+                        </div>
+                      ))}
+                    </dd>
+                  </div>
+                )}
 
                 <Separator className="sm:col-span-2" />
 
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <CalendarIcon className="size-3.5" />
-                    Opublikowano
-                  </dt>
-                  <dd className="text-sm text-foreground">
-                    {formatDate(tender.opublikowano)}
-                  </dd>
-                </div>
+                {tender.published_at && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <CalendarIcon className="size-3.5" />
+                      Opublikowano
+                    </dt>
+                    <dd className="text-sm text-foreground">
+                      {formatDate(tender.published_at)}
+                    </dd>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <ClockIcon className="size-3.5" />
-                    Termin składania ofert
-                  </dt>
-                  <dd className="text-sm text-foreground font-medium">
-                    {formatDate(tender.terminSkladaniaOfert)}
-                  </dd>
-                </div>
+                {tender.deadline_submission && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <ClockIcon className="size-3.5" />
+                      Termin składania ofert
+                    </dt>
+                    <dd className="text-sm text-foreground font-medium">
+                      {formatDate(tender.deadline_submission)}
+                    </dd>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    <ClockIcon className="size-3.5" />
-                    Termin na pytania
-                  </dt>
-                  <dd className="text-sm text-foreground">
-                    {formatDate(tender.terminNaPytania)}
-                  </dd>
-                </div>
+                {tender.deadline_questions && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      <ClockIcon className="size-3.5" />
+                      Termin na pytania
+                    </dt>
+                    <dd className="text-sm text-foreground">
+                      {formatDate(tender.deadline_questions)}
+                    </dd>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Budżet szacunkowy
-                  </dt>
-                  <dd className="text-sm text-foreground">
-                    <span className="text-muted-foreground">od </span>
-                    <span className="font-medium">{formatPLN(tender.budzetMin)}</span>
-                    <span className="text-muted-foreground"> do </span>
-                    <span className="font-semibold text-sky-400">{formatPLN(tender.budzetMax)}</span>
-                  </dd>
-                </div>
+                {(tender.budget_min !== null || tender.budget_max !== null) && (
+                  <div className="flex flex-col gap-1">
+                    <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Budżet szacunkowy
+                    </dt>
+                    <dd className="text-sm text-foreground">
+                      {tender.budget_min !== null && (
+                        <>
+                          <span className="text-muted-foreground">od </span>
+                          <span className="font-medium">{formatPLN(tender.budget_min)}</span>
+                        </>
+                      )}
+                      {tender.budget_max !== null && (
+                        <>
+                          <span className="text-muted-foreground"> do </span>
+                          <span className="font-semibold text-sky-400">{formatPLN(tender.budget_max)}</span>
+                        </>
+                      )}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </CardContent>
           </Card>
 
-          {/* Documents */}
+          {/* Description */}
+          {tender.description && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Opis przedmiotu zamówienia</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                  {tender.description}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Documents placeholder */}
           <Card>
             <CardHeader>
               <CardTitle>Dokumenty</CardTitle>
@@ -285,22 +329,31 @@ export default function PrzetargDetailPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="flex flex-col divide-y divide-border">
-                {tender.dokumenty.map((doc, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                  >
-                    <DocumentIcon typ={doc.typ} />
+              {tender.source_url ? (
+                <ul className="flex flex-col divide-y divide-border">
+                  <li className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <DocumentTypeIcon name="Specyfikacja Warunków Zamówienia" />
                     <span className="flex-1 text-sm text-foreground">
-                      {doc.nazwa}
+                      Specyfikacja Warunków Zamówienia (SWZ)
                     </span>
-                    <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
-                      Pobierz
-                    </Button>
+                    <a
+                      href={tender.source_url ?? "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "sm" }),
+                        "text-xs text-muted-foreground"
+                      )}
+                    >
+                      Otwórz
+                    </a>
                   </li>
-                ))}
-              </ul>
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  Brak dostępnych dokumentów
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
