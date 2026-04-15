@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { resend, FROM_EMAIL } from "@/lib/resend";
+import { getResend, FROM_EMAIL } from "@/lib/resend";
 import { renderNewTenderAlert } from "@/lib/emails/new-tender-alert";
 
 function getBaseUrl(request: NextRequest): string {
@@ -77,7 +77,7 @@ async function sendDigestEmail(
       baseUrl,
     });
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: FROM_EMAIL,
       to: profile.email!,
       subject: `Nowy przetarg: ${tender.title}`,

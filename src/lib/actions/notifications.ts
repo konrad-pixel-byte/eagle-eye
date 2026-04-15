@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { resend, FROM_EMAIL } from "@/lib/resend";
+import { getResend, FROM_EMAIL } from "@/lib/resend";
 import {
   renderNewTenderAlert,
 } from "@/lib/emails/new-tender-alert";
@@ -59,7 +59,7 @@ export async function sendTenderAlert(
     baseUrl: getBaseUrl(),
   });
 
-  const { error: sendError } = await resend.emails.send({
+  const { error: sendError } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: profile.email,
     subject: `Nowy przetarg: ${tender.title}`,
