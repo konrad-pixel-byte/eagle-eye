@@ -4,14 +4,14 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
 const stats = [
-  { value: "4 mld PLN", label: "Roczny rynek szkolen publicznych", source: "PARP" },
+  { value: "4 mld PLN", label: "Roczny rynek szkoleń publicznych", source: "PARP" },
   { value: "7 mld PLN", label: "Fundusze UE na szkolenia do 2027", source: "MFiPR" },
   { value: "60 000", label: "Firm szkoleniowych w Polsce", source: "GUS" },
-  { value: "15-25", label: "Nowych przetargow szkoleniowych dziennie", source: "BZP" },
-  { value: "150K PLN", label: "Srednia wartosc przetargu", source: "BZP" },
+  { value: "15-25", label: "Nowych przetargów szkoleniowych dziennie", source: "BZP" },
+  { value: "150K PLN", label: "Średnia wartość przetargu", source: "BZP" },
   { value: "~2.3", label: "Ofert na przetarg — niska konkurencja", source: "UZP" },
   { value: "80-90%", label: "Finansowane z funduszy publicznych", source: "MFiPR" },
-  { value: "12h/tydz", label: "Oszczedzasz dzieki automatyzacji", source: "Kalkulacja" },
+  { value: "12h/tydz", label: "Oszczędzasz dzięki automatyzacji", source: "Kalkulacja" },
 ];
 
 function StatItem({ stat, index }: { stat: typeof stats[number]; index: number }) {
@@ -48,7 +48,7 @@ export function StatsSection() {
             Twarde dane
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
-            Rynek, ktory nie blefuje.
+            Rynek, który nie blefuje.
           </h2>
         </div>
 

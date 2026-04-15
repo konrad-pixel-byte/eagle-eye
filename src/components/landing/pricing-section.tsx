@@ -28,32 +28,32 @@ const tiers: Tier[] = [
     href: "/auth/signup",
     highlighted: false,
     features: [
-      "10 przetargow dziennie (naglowki)",
-      "Akademia ZP — Modul 1-2",
+      "10 przetargów dziennie (nagłówki)",
+      "Akademia ZP — Moduł 1-2",
       "Alerty email 1x/dziennie",
       "Podstawowe filtry CPV",
     ],
   },
   {
     name: "Basic",
-    audience: "Dla firm startujacych w przetargach",
+    audience: "Dla firm startujących w przetargach",
     price: "299",
     period: "/mies.",
     cta: "14 dni za darmo",
     href: "/auth/signup?plan=basic",
     highlighted: false,
     features: [
-      "Nieograniczone przetargi + pelne detale",
+      "Nieograniczone przetargi + pełne detale",
       "Alerty 2x/dziennie (email + push)",
-      "Filtry CPV / region / budzet",
+      "Filtry CPV / region / budżet",
       "Kalkulator ofert",
       "Akademia ZP + certyfikat",
-      "1 uzytkownik",
+      "1 użytkownik",
     ],
   },
   {
     name: "Pro",
-    audience: "Dla firm wygrywajacych 2-5 przetargow/mies.",
+    audience: "Dla firm wygrywających 2-5 przetargów/mies.",
     price: "599",
     period: "/mies.",
     cta: "14 dni za darmo",
@@ -63,15 +63,15 @@ const tiers: Tier[] = [
       "Wszystko z Basic",
       "AI Bid Coach — sugestie + benchmarki",
       "Alerty real-time (push w 30 min)",
-      "Wyniki przetargow (kto wygral, za ile)",
+      "Wyniki przetargów (kto wygrał, za ile)",
       "Analiza konkurencji",
       "Monitoring KFS + BUR",
-      "Do 3 uzytkownikow",
+      "Do 3 użytkowników",
     ],
   },
   {
     name: "Enterprise",
-    audience: "Zespoly 5+ osob, duze organizacje",
+    audience: "Zespoły 5+ osób, duże organizacje",
     price: "1 799",
     period: "/mies.",
     cta: "Porozmawiajmy",
@@ -79,7 +79,7 @@ const tiers: Tier[] = [
     highlighted: false,
     features: [
       "Wszystko z Pro",
-      "Nieograniczeni uzytkownicy",
+      "Nieograniczeni użytkownicy",
       "API + webhook + SMS",
       "Advanced analytics",
       "Dedicated Account Manager",
@@ -177,7 +177,7 @@ export function PricingSection() {
           </div>
           <p className="max-w-[50ch] text-sm leading-relaxed text-zinc-500 lg:text-right">
             Jeden wygrany przetarg = 100 000+ PLN.
-            30 dni pelnego dostepu. Nie spodobalo sie? Zwrot bez pytan.
+            30 dni pełnego dostępu. Nie spodobało się? Zwrot bez pytań.
           </p>
         </div>
 

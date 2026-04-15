@@ -15,8 +15,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-600">
-              Monitoring przetargow szkoleniowych, finansowania BUR/KFS
-              i narzedzia do wygrywania zamowien publicznych.
+              Monitoring przetargów szkoleniowych, finansowania BUR/KFS
+              i narzędzia do wygrywania zamówień publicznych.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ export function Footer() {
               </li>
               <li>
                 <span className="text-xs text-zinc-600">
-                  Polityka prywatnosci
+                  Polityka prywatności
                 </span>
               </li>
               <li>
@@ -70,7 +70,7 @@ export function Footer() {
 
         <div className="mt-10 border-t border-zinc-800/40 pt-6">
           <p className="font-mono text-[10px] text-zinc-700">
-            &copy; {new Date().getFullYear()} Eagle Eye. Wszelkie prawa zastrzezone.
+            &copy; {new Date().getFullYear()} Eagle Eye. Wszelkie prawa zastrzeżone.
           </p>
         </div>
       </div>

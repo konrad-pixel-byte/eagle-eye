@@ -48,7 +48,7 @@ export function Navbar() {
               "text-zinc-500 hover:text-zinc-200"
             )}
           >
-            Zaloguj sie
+            Zaloguj się
           </Link>
           <Link
             href="/auth/signup"
@@ -91,7 +91,7 @@ export function Navbar() {
                     "border-zinc-800 text-zinc-400"
                   )}
                 >
-                  Zaloguj sie
+                  Zaloguj się
                 </Link>
                 <Link
                   href="/auth/signup"

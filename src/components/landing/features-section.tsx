@@ -26,7 +26,7 @@ const features: Feature[] = [
     icon: Search,
     title: "Monitoring 24/7",
     description:
-      "BZP, TED, Baza Konkurencyjnosci. Nowe przetargi szkoleniowe w minuty od publikacji. Zero recznego przeglladania.",
+      "BZP, TED, Baza Konkurencyjności. Nowe przetargi szkoleniowe w minuty od publikacji. Zero ręcznego przeglądania.",
     span: "md:col-span-2 md:row-span-2",
   },
   {
@@ -47,35 +47,35 @@ const features: Feature[] = [
     icon: Map,
     title: "KFS + BUR w jednym",
     description:
-      "Jedyne narzedzie laczace przetargi + nabory KFS z 340 PUP-ow + nabory BUR od 40 operatorow PSF. Pelen obraz finansowania.",
+      "Jedyne narzędzie łączące przetargi + nabory KFS z 340 PUP-ów + nabory BUR od 40 operatorów PSF. Pełen obraz finansowania.",
     span: "md:col-span-2",
   },
   {
     icon: Calculator,
     title: "Kalkulator ofert szkoleniowych",
     description:
-      "Osobodzien, stawka trenera, materialy, catering, marza. Porownanie z historycznymi zwycieskimi cenami.",
+      "Osobodzień, stawka trenera, materiały, catering, marża. Porównanie z historycznymi zwycięskimi cenami.",
     span: "md:col-span-1",
   },
   {
     icon: GraduationCap,
     title: "Akademia ZP",
     description:
-      "Darmowy kurs z certyfikatem. Od podstaw PZP po strategie wygrywania przetargow.",
+      "Darmowy kurs z certyfikatem. Od podstaw PZP po strategię wygrywania przetargów.",
     span: "md:col-span-1",
   },
   {
     icon: Shield,
     title: "Analiza konkurencji",
     description:
-      "Kto wygrywa w Twoim regionie, za ile, ile ofert bylo. Watch list na konkurentow.",
+      "Kto wygrywa w Twoim regionie, za ile, ile ofert było. Watch list na konkurentów.",
     span: "md:col-span-1",
   },
   {
     icon: Zap,
-    title: "Cmd+K i skroty klawiszowe",
+    title: "Cmd+K i skróty klawiszowe",
     description:
-      "Command palette, keyboard-first navigation. Zbudowane dla ludzi, ktorzy pracuja szybko.",
+      "Command palette, keyboard-first navigation. Zbudowane dla ludzi, którzy pracują szybko.",
     span: "md:col-span-1",
   },
 ];
@@ -131,7 +131,7 @@ export function FeaturesSection() {
           <h2 className="mt-2 text-2xl font-bold tracking-tighter text-zinc-200 md:text-3xl">
             Nie tylko monitoring.
             <br />
-            <span className="text-zinc-500">Pelny arsenal.</span>
+            <span className="text-zinc-500">Pełny arsenał.</span>
           </h2>
         </div>
 

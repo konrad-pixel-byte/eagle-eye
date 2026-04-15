@@ -6,14 +6,6 @@ import { Eye, MailCheck } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -45,102 +37,127 @@ export default function ForgotPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm">
-          <div className="mb-6 flex flex-col items-center gap-2">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-[#0EA5E9]">
-              <Eye className="size-6 text-white" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight text-foreground">
-              Eagle Eye
-            </span>
+      <div className="flex min-h-[100dvh]">
+        {/* Left brand panel */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-zinc-950 px-12 py-10">
+          <div className="flex items-center gap-2.5">
+            <Eye className="size-5 text-zinc-100" />
+            <span className="text-sm font-semibold tracking-tight text-zinc-100">Eagle Eye</span>
           </div>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center gap-3 py-4 text-center">
-                <MailCheck className="size-10 text-[#0EA5E9]" />
-                <h2 className="text-base font-semibold">E-mail wysłany</h2>
-                <p className="text-sm text-muted-foreground">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold text-zinc-100 leading-tight">
+              Nie pamiętasz hasła?
+            </h1>
+            <p className="text-zinc-500 text-base leading-relaxed max-w-sm">
+              Zdarza się każdemu. Wyślemy Ci link — nowe hasło ustawisz w mniej niż minutę.
+            </p>
+          </div>
+
+          <p className="text-xs text-zinc-700 font-mono">eagle-eye.hatedapps.pl</p>
+        </div>
+
+        {/* Right success panel */}
+        <div className="flex w-full lg:w-1/2 flex-col justify-center px-6 py-10 sm:px-12 bg-zinc-950 lg:bg-white">
+          <div className="w-full max-w-sm mx-auto">
+            <div className="flex flex-col items-center gap-4 text-center py-8">
+              <MailCheck className="size-12 text-[#0EA5E9]" />
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-zinc-100 lg:text-zinc-950">E-mail wysłany</h2>
+                <p className="text-sm text-zinc-500 leading-relaxed">
                   Jeśli konto o adresie{" "}
-                  <span className="font-medium text-foreground">{email}</span> istnieje,
-                  otrzymasz wiadomość z linkiem do resetowania hasła.
+                  <span className="font-medium text-zinc-100 lg:text-zinc-950 font-mono">{email}</span>{" "}
+                  istnieje, otrzymasz wiadomość z linkiem do resetowania hasła.
                 </p>
-                <Link
-                  href="/auth/login"
-                  className="mt-2 text-sm text-[#0EA5E9] underline-offset-4 hover:underline"
-                >
-                  Wróć do logowania
-                </Link>
               </div>
-            </CardContent>
-          </Card>
+              <Link
+                href="/auth/login"
+                className="mt-2 text-sm text-[#0EA5E9] hover:text-[#0EA5E9]/80 transition-colors"
+              >
+                Wróć do logowania
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center gap-2">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-[#0EA5E9]">
-            <Eye className="size-6 text-white" />
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-foreground">
-            Eagle Eye
-          </span>
+    <div className="flex min-h-[100dvh]">
+      {/* Left brand panel */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-zinc-950 px-12 py-10">
+        <div className="flex items-center gap-2.5">
+          <Eye className="size-5 text-zinc-100" />
+          <span className="text-sm font-semibold tracking-tight text-zinc-100">Eagle Eye</span>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Resetuj hasło</CardTitle>
-            <CardDescription>
-              Podaj swój adres e-mail, a wyślemy Ci link do resetowania hasła.
-            </CardDescription>
-          </CardHeader>
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold text-zinc-100 leading-tight">
+            Nie pamiętasz hasła?
+          </h1>
+          <p className="text-zinc-500 text-base leading-relaxed max-w-sm">
+            Zdarza się każdemu. Wyślemy Ci link — nowe hasło ustawisz w mniej niż minutę.
+          </p>
+        </div>
 
-          <CardContent>
-            <form id="forgot-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="email">Adres e-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="ty@firma.pl"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+        <p className="text-xs text-zinc-700 font-mono">eagle-eye.hatedapps.pl</p>
+      </div>
 
-              {error && (
-                <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {error}
-                </p>
-              )}
-            </form>
-          </CardContent>
+      {/* Right form panel */}
+      <div className="flex w-full lg:w-1/2 flex-col justify-center px-6 py-10 sm:px-12 bg-zinc-950 lg:bg-white">
+        {/* Mobile logo */}
+        <div className="flex items-center gap-2 mb-10 lg:hidden">
+          <Eye className="size-5 text-zinc-100" />
+          <span className="text-sm font-semibold tracking-tight text-zinc-100">Eagle Eye</span>
+        </div>
 
-          <CardFooter className="flex flex-col gap-3">
+        <div className="w-full max-w-sm mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-zinc-100 lg:text-zinc-950">Zresetuj hasło</h2>
+            <p className="mt-1.5 text-sm text-zinc-500">
+              Podaj adres email powiązany z kontem — wyślemy Ci link do resetowania.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email" className="text-zinc-100 lg:text-zinc-950">Adres email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="ty@firma.pl"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            {error && (
+              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+
             <Button
               type="submit"
-              form="forgot-form"
-              className="w-full bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]/90"
+              className="w-full bg-zinc-100 text-zinc-950 hover:bg-white active:scale-[0.98] transition-all font-medium"
               disabled={isLoading}
             >
               {isLoading ? "Wysyłanie…" : "Wyślij link resetujący"}
             </Button>
+          </form>
 
+          <p className="mt-6 text-center text-sm text-zinc-500">
             <Link
               href="/auth/login"
-              className="text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="text-[#0EA5E9] hover:text-[#0EA5E9]/80 transition-colors"
             >
               Wróć do logowania
             </Link>
-          </CardFooter>
-        </Card>
+          </p>
+        </div>
       </div>
     </div>
   )

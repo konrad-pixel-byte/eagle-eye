@@ -36,18 +36,18 @@ function FloatingTenderCard() {
         </div>
 
         <h3 className="mt-3 text-sm font-medium leading-snug text-zinc-200">
-          Przeprowadzenie szkolen z zakresu kompetencji cyfrowych
-          dla pracownikow JST woj. malopolskiego
+          Przeprowadzenie szkoleń z zakresu kompetencji cyfrowych
+          dla pracowników JST woj. małopolskiego
         </h3>
 
         <div className="mt-3 grid grid-cols-3 gap-3">
           <div>
-            <span className="text-[10px] uppercase tracking-wider text-zinc-600">Budzet</span>
+            <span className="text-[10px] uppercase tracking-wider text-zinc-600">Budżet</span>
             <p className="font-mono text-sm font-medium text-zinc-300">847 200 PLN</p>
           </div>
           <div>
             <span className="text-[10px] uppercase tracking-wider text-zinc-600">Region</span>
-            <p className="text-sm text-zinc-300">Malopolskie</p>
+            <p className="text-sm text-zinc-300">Małopolskie</p>
           </div>
           <div>
             <span className="text-[10px] uppercase tracking-wider text-zinc-600">Termin</span>
@@ -84,18 +84,18 @@ export function HeroSection() {
         >
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/80 px-3 py-1 text-xs font-medium text-zinc-400">
             <LivePulse />
-            17 nowych przetargow dzisiaj
+            17 nowych przetargów dzisiaj
           </div>
 
           <h1 className="text-4xl font-bold tracking-tighter leading-none text-zinc-100 md:text-6xl">
-            Przestaniesz szukac.
+            Przestaniesz szukać.
             <br />
-            <span className="text-zinc-500">Zaczniesz wygrywac.</span>
+            <span className="text-zinc-500">Zaczniesz wygrywać.</span>
           </h1>
 
           <p className="mt-6 max-w-[52ch] text-base leading-relaxed text-zinc-500">
-            Eagle Eye monitoruje BZP, TED i Baze Konkurencyjnosci 24/7.
-            Gdy pojawia sie przetarg szkoleniowy dopasowany do Twojego profilu
+            Eagle Eye monitoruje BZP, TED i Bazę Konkurencyjności 24/7.
+            Gdy pojawia się przetarg szkoleniowy dopasowany do Twojego profilu
             — wiesz o nim w minuty, nie w dni.
           </p>
 
@@ -135,7 +135,7 @@ export function HeroSection() {
             <div className="hidden h-8 w-px bg-zinc-800 sm:block" />
             <div className="hidden sm:block">
               <p className="font-mono text-2xl font-bold tracking-tight text-zinc-200">12h</p>
-              <p className="text-xs text-zinc-600">oszczedzasz tygodniowo</p>
+              <p className="text-xs text-zinc-600">oszczędzasz tygodniowo</p>
             </div>
           </div>
         </motion.div>

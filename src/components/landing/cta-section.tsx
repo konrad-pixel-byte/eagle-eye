@@ -28,14 +28,14 @@ export function CTASection() {
           <div className="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div>
               <h2 className="text-2xl font-bold tracking-tighter text-zinc-200 md:text-4xl">
-                Przestaniesz tracic czas
+                Przestaniesz tracić czas
                 <br />
-                <span className="text-zinc-500">na reczne szukanie.</span>
+                <span className="text-zinc-500">na ręczne szukanie.</span>
               </h2>
               <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-zinc-500">
-                Przecietny uzytkownik Pro oszczedza 12 godzin tygodniowo.
-                624 godziny rocznie. To 3.5 etatu, ktore mozesz przeznaczyc
-                na skladanie ofert zamiast ich szukania.
+                Przeciętny użytkownik Pro oszczędza 12 godzin tygodniowo.
+                624 godziny rocznie. To 3.5 etatu, które możesz przeznaczyć
+                na składanie ofert zamiast ich szukania.
               </p>
             </div>
 
@@ -51,7 +51,7 @@ export function CTASection() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <p className="text-xs text-zinc-600">
-                Bez karty kredytowej. 30 dni pelnego dostepu.
+                Bez karty kredytowej. 30 dni pełnego dostępu.
               </p>
             </div>
           </div>
