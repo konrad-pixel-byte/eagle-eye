@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import type { SubscriptionTier } from "@/lib/subscription"
 
 export default async function DashboardLayout({
   children,
@@ -17,7 +18,18 @@ export default async function DashboardLayout({
     redirect("/auth/login")
   }
 
-  const [unreadCount] = await Promise.all([getUnreadAlertCount()])
+  const [unreadCount, profileResult] = await Promise.all([
+    getUnreadAlertCount(),
+    supabase
+      .from("profiles")
+      .select("subscription_tier")
+      .eq("id", user.id)
+      .single(),
+  ])
+
+  const userTier =
+    ((profileResult.data?.subscription_tier as SubscriptionTier | undefined) ??
+      "free") as SubscriptionTier
 
   const displayUser = {
     email: user.email ?? "",
@@ -26,7 +38,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <DashboardShell user={displayUser} unreadAlertCount={unreadCount}>
+    <DashboardShell
+      user={displayUser}
+      unreadAlertCount={unreadCount}
+      userTier={userTier}
+    >
       {children}
     </DashboardShell>
   )

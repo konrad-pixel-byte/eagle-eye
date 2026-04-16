@@ -22,6 +22,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { logoutAction } from "@/lib/supabase/actions"
+import type { SubscriptionTier } from "@/lib/subscription"
 import { CommandPalette } from "@/components/dashboard/command-palette"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -67,6 +68,7 @@ interface DashboardShellProps {
     full_name?: string
   }
   unreadAlertCount?: number
+  userTier?: SubscriptionTier
 }
 
 function getInitials(name?: string, email?: string): string {
@@ -191,7 +193,7 @@ function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
   )
 }
 
-export function DashboardShell({ children, user, unreadAlertCount = 0 }: DashboardShellProps) {
+export function DashboardShell({ children, user, unreadAlertCount = 0, userTier = "free" }: DashboardShellProps) {
   const pathname = usePathname()
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const initials = getInitials(user.full_name, user.email)
