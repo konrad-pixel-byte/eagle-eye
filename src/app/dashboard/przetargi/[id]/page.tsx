@@ -30,7 +30,9 @@ import {
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 import { getUserBookmarks } from "@/lib/actions/bookmarks"
+import { getUserTier } from "@/lib/actions/subscription"
 import { BookmarkButton } from "@/components/dashboard/bookmark-button"
+import { AiPanel } from "./ai-panel"
 import type { Tender } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
@@ -115,9 +117,10 @@ export default async function Page({
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: tender }, bookmarkedIds] = await Promise.all([
+  const [{ data: tender }, bookmarkedIds, userTier] = await Promise.all([
     supabase.from("tenders").select("*").eq("id", id).single<Tender>(),
     getUserBookmarks(),
+    getUserTier(),
   ])
 
   if (!tender) {
@@ -159,37 +162,13 @@ export default async function Page({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column — 2/3 */}
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {/* AI Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BrainIcon className="size-5 text-sky-400" />
-                Analiza AI
-              </CardTitle>
-              <CardDescription>
-                Automatyczne podsumowanie i ocena dopasowania przetargu
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {tender.ai_summary ? (
-                <p className="text-sm text-foreground leading-relaxed">
-                  {tender.ai_summary}
-                </p>
-              ) : (
-                <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-                  <BrainIcon className="size-10 text-sky-400/50" />
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium text-foreground">
-                      Analiza AI zostanie wygenerowana automatycznie...
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      System przetworzy dokumenty i przygotuje szczegółowe podsumowanie wraz z oceną szansy na wygraną.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* AI Panel */}
+          <AiPanel
+            tenderId={tender.id}
+            userTier={userTier}
+            initialSummary={tender.ai_summary}
+            initialScore={tender.ai_relevance_score}
+          />
 
           {/* Key details */}
           <Card>
