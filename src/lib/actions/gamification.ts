@@ -14,30 +14,54 @@ import {
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function getGamificationState(): Promise<UserGamificationState | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
 
-  const [xpResult, streakResult, badgesResult, viewsResult] = await Promise.all([
-    supabase.from("user_xp").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("user_streaks").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("user_badges").select("badge_id").eq("user_id", user.id),
-    supabase.from("user_tender_views").select("total_views").eq("user_id", user.id).maybeSingle(),
-  ])
+    const [xpResult, streakResult, badgesResult, viewsResult] = await Promise.all([
+      supabase.from("user_xp").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_streaks").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_badges").select("badge_id").eq("user_id", user.id),
+      supabase.from("user_tender_views").select("total_views").eq("user_id", user.id).maybeSingle(),
+    ])
 
-  const totalXp = xpResult.data?.total_xp ?? 0
-  const { current, next, progress } = xpToNextLevel(totalXp)
+    // If tables don't exist yet (migration pending), return zeroed state
+    if (xpResult.error?.message?.includes("does not exist")) {
+      return getZeroState()
+    }
 
+    const totalXp = xpResult.data?.total_xp ?? 0
+    const { current, next, progress } = xpToNextLevel(totalXp)
+
+    return {
+      totalXp,
+      level: current.level,
+      levelConfig: current,
+      nextLevel: next,
+      xpProgress: progress,
+      currentStreak: streakResult.data?.current_streak ?? 0,
+      longestStreak: streakResult.data?.longest_streak ?? 0,
+      badges: (badgesResult.data ?? []).map((b) => b.badge_id),
+      tenderViews: viewsResult.data?.total_views ?? 0,
+    }
+  } catch {
+    return getZeroState()
+  }
+}
+
+function getZeroState(): UserGamificationState {
+  const { current, next, progress } = xpToNextLevel(0)
   return {
-    totalXp,
-    level: current.level,
+    totalXp: 0,
+    level: 1,
     levelConfig: current,
     nextLevel: next,
     xpProgress: progress,
-    currentStreak: streakResult.data?.current_streak ?? 0,
-    longestStreak: streakResult.data?.longest_streak ?? 0,
-    badges: (badgesResult.data ?? []).map((b) => b.badge_id),
-    tenderViews: viewsResult.data?.total_views ?? 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    badges: [],
+    tenderViews: 0,
   }
 }
 
@@ -62,6 +86,7 @@ export async function awardXp(
   eventType: XpEventType,
   metadata: Record<string, unknown> = {}
 ): Promise<{ newXp: number; newLevel: number; leveledUp: boolean; newBadges: string[] }> {
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { newXp: 0, newLevel: 1, leveledUp: false, newBadges: [] }
@@ -99,11 +124,15 @@ export async function awardXp(
   const newBadges = await checkAndGrantBadges(user.id, newXp, newLevel)
 
   return { newXp, newLevel, leveledUp, newBadges }
+  } catch {
+    return { newXp: 0, newLevel: 1, leveledUp: false, newBadges: [] }
+  }
 }
 
 // ─── Login streak ─────────────────────────────────────────────────────────────
 
 export async function updateLoginStreak(): Promise<{ streak: number; bonusXp: number }> {
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { streak: 0, bonusXp: 0 }
@@ -148,11 +177,15 @@ export async function updateLoginStreak(): Promise<{ streak: number; bonusXp: nu
   await checkStreakBadges(user.id, newStreak)
 
   return { streak: newStreak, bonusXp }
+  } catch {
+    return { streak: 0, bonusXp: 0 }
+  }
 }
 
 // ─── Record tender view ───────────────────────────────────────────────────────
 
 export async function recordTenderView(tenderId: string): Promise<void> {
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
@@ -178,6 +211,9 @@ export async function recordTenderView(tenderId: string): Promise<void> {
 
   // Check view badges
   await checkViewBadges(user.id, newViews)
+  } catch {
+    // Tables may not exist yet — fail silently
+  }
 }
 
 // ─── Record save tender ───────────────────────────────────────────────────────
