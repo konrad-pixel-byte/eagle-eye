@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { grantWelcomeBadge } from "@/lib/actions/gamification";
 
 export async function completeOnboarding(data: {
   company_name: string;
@@ -29,6 +30,9 @@ export async function completeOnboarding(data: {
     .eq("id", user.id);
 
   if (error) throw new Error(error.message);
+
+  void grantWelcomeBadge()
+
   revalidatePath("/dashboard");
   return { success: true };
 }

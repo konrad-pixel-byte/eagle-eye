@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
-import { getGamificationState } from "@/lib/actions/gamification"
+import { getGamificationState, updateLoginStreak } from "@/lib/actions/gamification"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import type { SubscriptionTier } from "@/lib/subscription"
 
@@ -18,6 +18,8 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/auth/login")
   }
+
+  void updateLoginStreak()
 
   const [unreadCount, profileResult, gamificationState] = await Promise.all([
     getUnreadAlertCount(),
