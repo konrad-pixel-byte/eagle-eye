@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import {
   XP_REWARDS,
   getLevelForXp,
-  BADGES,
+  getBadge as _getBadge,
   type XpEventType,
   type UserGamificationState,
   xpToNextLevel,
@@ -289,4 +289,3 @@ export async function grantWelcomeBadge(): Promise<void> {
   await awardXp("complete_onboarding")
 }
 
-export { BADGES }
