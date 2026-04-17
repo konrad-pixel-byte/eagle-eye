@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/server"
 import { getUserBookmarks } from "@/lib/actions/bookmarks"
 import { getUserTier } from "@/lib/actions/subscription"
+import { recordTenderView } from "@/lib/actions/gamification"
 import { BookmarkButton } from "@/components/dashboard/bookmark-button"
 import { AiPanel } from "./ai-panel"
 import type { Tender } from "@/lib/types"
@@ -122,6 +123,9 @@ export default async function Page({
     getUserBookmarks(),
     getUserTier(),
   ])
+
+  // Fire-and-forget XP for viewing this tender
+  void recordTenderView(id)
 
   if (!tender) {
     notFound()

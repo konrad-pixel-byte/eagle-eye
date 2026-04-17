@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Bookmark,
   Calculator,
+  Trophy,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -27,6 +28,8 @@ import { CommandPalette } from "@/components/dashboard/command-palette"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { GamificationWidget } from "@/components/gamification/GamificationWidget"
+import type { UserGamificationState } from "@/lib/gamification"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -58,6 +61,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Finansowanie BUR/KFS", href: "/dashboard/finansowanie", icon: Landmark },
   { label: "Akademia", href: "/dashboard/akademia", icon: GraduationCap },
   { label: "Statystyki", href: "/dashboard/statystyki", icon: BarChart3 },
+  { label: "Osiągnięcia", href: "/dashboard/osiagniecia", icon: Trophy },
   { label: "Ustawienia", href: "/dashboard/ustawienia", icon: Settings },
 ]
 
@@ -67,6 +71,7 @@ interface DashboardShellProps {
     email: string
     full_name?: string
   }
+  gamificationState?: UserGamificationState | null
   unreadAlertCount?: number
   userTier?: SubscriptionTier
 }
@@ -130,9 +135,10 @@ interface SidebarContentProps {
   user: DashboardShellProps["user"]
   pathname: string
   onNavClick?: () => void
+  gamificationState?: UserGamificationState | null
 }
 
-function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
+function SidebarContent({ user, pathname, onNavClick, gamificationState }: SidebarContentProps) {
   const router = useRouter()
   const initials = getInitials(user.full_name, user.email)
   const displayName = user.full_name ?? user.email
@@ -161,6 +167,13 @@ function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
           ))}
         </nav>
       </ScrollArea>
+
+      {/* Gamification mini-widget */}
+      {gamificationState && (
+        <div className="shrink-0 px-3 pb-2">
+          <GamificationWidget state={gamificationState} />
+        </div>
+      )}
 
       {/* User area */}
       <div className="shrink-0 border-t border-border/50 p-3">
@@ -193,7 +206,7 @@ function SidebarContent({ user, pathname, onNavClick }: SidebarContentProps) {
   )
 }
 
-export function DashboardShell({ children, user, unreadAlertCount = 0, userTier = "free" }: DashboardShellProps) {
+export function DashboardShell({ children, user, unreadAlertCount = 0, userTier = "free", gamificationState }: DashboardShellProps) {
   const pathname = usePathname()
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const initials = getInitials(user.full_name, user.email)
@@ -209,7 +222,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, userTier 
       <CommandPalette />
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
-        <SidebarContent user={user} pathname={pathname} />
+        <SidebarContent user={user} pathname={pathname} gamificationState={gamificationState} />
       </aside>
 
       {/* Main column */}
@@ -238,6 +251,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, userTier 
                 user={user}
                 pathname={pathname}
                 onNavClick={() => setSheetOpen(false)}
+                gamificationState={gamificationState}
               />
             </SheetContent>
           </Sheet>

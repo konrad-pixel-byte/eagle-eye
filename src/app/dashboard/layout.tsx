@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
+import { getGamificationState } from "@/lib/actions/gamification"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import type { SubscriptionTier } from "@/lib/subscription"
 
@@ -18,13 +19,14 @@ export default async function DashboardLayout({
     redirect("/auth/login")
   }
 
-  const [unreadCount, profileResult] = await Promise.all([
+  const [unreadCount, profileResult, gamificationState] = await Promise.all([
     getUnreadAlertCount(),
     supabase
       .from("profiles")
       .select("subscription_tier")
       .eq("id", user.id)
       .single(),
+    getGamificationState(),
   ])
 
   const userTier =
@@ -42,6 +44,7 @@ export default async function DashboardLayout({
       user={displayUser}
       unreadAlertCount={unreadCount}
       userTier={userTier}
+      gamificationState={gamificationState}
     >
       {children}
     </DashboardShell>
