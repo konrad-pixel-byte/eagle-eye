@@ -6,12 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Users, Bookmark, Database, Zap, Clock } from "lucide-react"
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "conrad.bednarski@gmail.com"
-
 export default async function AdminPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) redirect("/dashboard")
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!user || !adminEmail || user.email !== adminEmail) redirect("/dashboard")
 
   const stats = await getAdminStats()
 

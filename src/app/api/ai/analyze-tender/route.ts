@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { scoreTender, summarizeTender, generateBidAdvice } from "@/lib/ai/tender-analysis";
 import type { Tender } from "@/lib/types";
+import type { SubscriptionTier } from "@/lib/subscription";
+
+// Free users get limited AI calls; paid users get unlimited
+const AI_TIER_REQUIRED: Record<string, SubscriptionTier> = {
+  score: "free",       // available to all
+  summary: "basic",    // basic+ only
+  "bid-coach": "pro",  // pro+ only
+}
+
+const TIER_ORDER: SubscriptionTier[] = ["free", "basic", "pro", "enterprise"]
+
+function tierMeetsRequirement(userTier: SubscriptionTier, required: SubscriptionTier): boolean {
+  return TIER_ORDER.indexOf(userTier) >= TIER_ORDER.indexOf(required)
+}
 
 interface RequestBody {
   tenderId: string;
@@ -34,6 +48,23 @@ export async function POST(req: NextRequest) {
 
   if (!["score", "summary", "bid-coach"].includes(type)) {
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+  }
+
+  // Check subscription tier
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("subscription_tier")
+    .eq("id", user.id)
+    .single<{ subscription_tier: SubscriptionTier }>()
+
+  const userTier: SubscriptionTier = profile?.subscription_tier ?? "free"
+  const required = AI_TIER_REQUIRED[type] ?? "pro"
+
+  if (!tierMeetsRequirement(userTier, required)) {
+    return NextResponse.json(
+      { error: `Ta funkcja AI wymaga planu ${required}+` },
+      { status: 403 }
+    )
   }
 
   const { data: tender, error: tenderError } = await supabase

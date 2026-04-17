@@ -66,7 +66,7 @@ export async function completeLesson(
 
       if (moduleCompleted) {
         xpEarned = mod.xpReward
-        await awardXp("complete_onboarding", { source: `module_${moduleId}` })
+        await awardXp("complete_module", { source: `module_${moduleId}` })
       }
     }
 

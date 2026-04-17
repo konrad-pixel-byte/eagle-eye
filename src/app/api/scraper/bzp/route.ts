@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAndMapBzpTenders } from "@/lib/scraper/bzp";
+import { notifyMatchingUsers } from "@/lib/scraper/notify";
 import type { Tender } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -73,8 +74,8 @@ type TenderInsert = Omit<Tender, "id" | "created_at" | "updated_at"> & {
 async function insertTenders(
   supabase: ReturnType<typeof createAdminClient>,
   tenders: Array<Partial<Tender>>
-): Promise<{ inserted: number; insertError: string | null }> {
-  if (tenders.length === 0) return { inserted: 0, insertError: null };
+): Promise<{ inserted: number; insertError: string | null; insertedRows: Array<{ id: string; title: string; cpv_codes: string[]; voivodeship: string | null; source: string }> }> {
+  if (tenders.length === 0) return { inserted: 0, insertError: null, insertedRows: [] };
 
   const rows: TenderInsert[] = tenders.map((t) => ({
     external_id: t.external_id ?? null,
@@ -101,14 +102,16 @@ async function insertTenders(
     published_at: t.published_at ?? null,
   }));
 
-  const { error } = await supabase.from("tenders").insert(rows);
+  const { data, error } = await supabase
+    .from("tenders")
+    .insert(rows)
+    .select("id, title, cpv_codes, voivodeship, source");
 
   if (error) {
-    console.error("[BZP scraper] Insert error:", error.message);
-    return { inserted: 0, insertError: error.message };
+    return { inserted: 0, insertError: error.message, insertedRows: [] };
   }
 
-  return { inserted: rows.length, insertError: null };
+  return { inserted: rows.length, insertError: null, insertedRows: data ?? [] };
 }
 
 // ---------------------------------------------------------------------------
@@ -176,7 +179,12 @@ export async function POST(
 
   // 3. Insert new tenders
   const supabase = createAdminClient();
-  const { inserted, insertError } = await insertTenders(supabase, newTenders);
+  const { inserted, insertError, insertedRows } = await insertTenders(supabase, newTenders);
+
+  // 4. Create in-app alerts for matching users (fire-and-forget)
+  if (insertedRows.length > 0) {
+    void notifyMatchingUsers(insertedRows)
+  }
 
   const result: BzpScraperResult = {
     fetched: fetched.length,

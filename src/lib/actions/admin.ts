@@ -3,24 +3,19 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
+import type { AdminStats } from "@/lib/types"
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "conrad.bednarski@gmail.com"
+function getAdminEmail(): string {
+  const email = process.env.ADMIN_EMAIL
+  if (!email) throw new Error("ADMIN_EMAIL env var is not set")
+  return email
+}
 
 async function requireAdmin(): Promise<string> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) redirect("/dashboard")
+  if (!user || user.email !== getAdminEmail()) redirect("/dashboard")
   return user.id
-}
-
-export interface AdminStats {
-  tenderCount: number
-  userCount: number
-  bzpCount: number
-  tedCount: number
-  savedTenderCount: number
-  recentTenders: { id: string; title: string; source: string; created_at: string }[]
-  recentUsers: { id: string; email: string; created_at: string }[]
 }
 
 export async function getAdminStats(): Promise<AdminStats> {

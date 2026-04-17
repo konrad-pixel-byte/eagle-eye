@@ -6,6 +6,7 @@ export const XP_REWARDS = {
   streak_bonus: 5,       // per consecutive day above 1
   save_tender: 15,
   complete_onboarding: 50,
+  complete_module: 75,
 } as const
 
 export type XpEventType = keyof typeof XP_REWARDS
@@ -185,4 +186,18 @@ export interface UserGamificationState {
   longestStreak: number
   badges: string[]          // badge IDs
   tenderViews: number
+}
+
+export interface LeaderboardEntry {
+  rank: number
+  userId: string
+  displayName: string
+  totalXp: number
+  level: number
+  levelTitle: string
+  levelIcon: string
+  currentStreak: number
+  badgeCount: number
+  tenderViews: number
+  isCurrentUser: boolean
 }

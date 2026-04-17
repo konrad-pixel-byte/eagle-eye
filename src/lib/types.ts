@@ -25,3 +25,13 @@ export interface Tender {
   created_at: string;
   updated_at: string;
 }
+
+export interface AdminStats {
+  tenderCount: number
+  bzpCount: number
+  tedCount: number
+  savedTenderCount: number
+  userCount: number
+  recentTenders: { id: string; title: string; source: string; created_at: string }[]
+  recentUsers: { id: string; email: string; created_at: string }[]
+}

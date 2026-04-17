@@ -8,6 +8,7 @@ import {
   getBadge as _getBadge,
   type XpEventType,
   type UserGamificationState,
+  type LeaderboardEntry,
   xpToNextLevel,
 } from "@/lib/gamification"
 
@@ -94,23 +95,20 @@ export async function awardXp(
   const admin = createAdminClient()
   const xpEarned = XP_REWARDS[eventType]
 
-  // Upsert XP record
-  const { data: existing } = await admin
-    .from("user_xp")
-    .select("total_xp, level")
-    .eq("user_id", user.id)
-    .maybeSingle()
+  // Read current level before atomic increment to detect level-up
+  const { data: prevRow } = await admin.from("user_xp").select("level").eq("user_id", user.id).maybeSingle()
+  const prevLevel = prevRow?.level ?? 1
 
-  const prevXp = existing?.total_xp ?? 0
-  const prevLevel = existing?.level ?? 1
-  const newXp = prevXp + xpEarned
-  const newLevel = getLevelForXp(newXp).level
+  // Atomic increment via RPC — avoids read-modify-write race condition
+  const { data: rpcResult } = await admin.rpc("increment_user_xp", {
+    p_user_id: user.id,
+    p_xp: xpEarned,
+  })
+
+  const row = Array.isArray(rpcResult) ? rpcResult[0] : rpcResult
+  const newXp: number = row?.new_xp ?? xpEarned
+  const newLevel: number = row?.new_level ?? getLevelForXp(newXp).level
   const leveledUp = newLevel > prevLevel
-
-  await admin.from("user_xp").upsert(
-    { user_id: user.id, total_xp: newXp, level: newLevel, updated_at: new Date().toISOString() },
-    { onConflict: "user_id" }
-  )
 
   // Log the event
   await admin.from("xp_events").insert({
@@ -192,19 +190,9 @@ export async function recordTenderView(tenderId: string): Promise<void> {
 
   const admin = createAdminClient()
 
-  // Increment view counter
-  const { data: existing } = await admin
-    .from("user_tender_views")
-    .select("total_views")
-    .eq("user_id", user.id)
-    .maybeSingle()
-
-  const newViews = (existing?.total_views ?? 0) + 1
-
-  await admin.from("user_tender_views").upsert(
-    { user_id: user.id, total_views: newViews, updated_at: new Date().toISOString() },
-    { onConflict: "user_id" }
-  )
+  // Atomic increment via RPC — avoids race condition on concurrent views
+  const { data: newViewsData } = await admin.rpc("increment_tender_views", { p_user_id: user.id })
+  const newViews: number = typeof newViewsData === "number" ? newViewsData : 1
 
   // Award XP
   await awardXp("tender_view", { tender_id: tenderId })
@@ -276,24 +264,15 @@ async function grantBadgeIfNew(
     .from("user_badges")
     .insert({ user_id: userId, badge_id: badgeId })
 
-  return !error
+  if (!error) return true
+  // 23505 = unique_violation — badge already granted, not an error
+  if ((error as { code?: string }).code === "23505") return false
+  // Any other error is unexpected — log but don't throw
+  console.error(`[grantBadgeIfNew] Unexpected error granting ${badgeId}:`, error.message)
+  return false
 }
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
-
-export interface LeaderboardEntry {
-  rank: number
-  userId: string
-  displayName: string
-  totalXp: number
-  level: number
-  levelTitle: string
-  levelIcon: string
-  currentStreak: number
-  badgeCount: number
-  tenderViews: number
-  isCurrentUser: boolean
-}
 
 export async function getLeaderboard(limit = 20): Promise<LeaderboardEntry[]> {
   try {
