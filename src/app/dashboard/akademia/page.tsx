@@ -1,157 +1,224 @@
-"use client"
-
-import type { ElementType } from "react"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card"
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { COURSE_MODULES } from "@/lib/akademia-content"
+import { getCourseProgress } from "@/lib/actions/akademia"
+import { getUserTier } from "@/lib/actions/subscription"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { BookOpen, FileEdit, Target, Zap, Lock, PlayCircle } from "lucide-react"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { BookOpen, FileEdit, Target, Zap, Lock, PlayCircle, CheckCircle, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import type { ElementType } from "react"
 
-interface AcademyModule {
-  id: number
-  title: string
-  description: string
-  icon: ElementType
-  badge: string
-  badgeVariant: "default" | "secondary" | "outline"
-  locked: boolean
-  progress: number | null
+const MODULE_ICONS: Record<number, ElementType> = {
+  1: BookOpen,
+  2: FileEdit,
+  3: Target,
+  4: Zap,
 }
 
-const MODULES: AcademyModule[] = [
-  {
-    id: 1,
-    title: "Podstawy zamówień publicznych",
-    description:
-      "Poznaj fundamenty systemu zamówień publicznych w Polsce. Dowiedz się, czym są przetargi i jak działa Ustawa PZP.",
-    icon: BookOpen,
-    badge: "Darmowy",
-    badgeVariant: "secondary",
-    locked: false,
-    progress: null,
-  },
-  {
-    id: 2,
-    title: "Przygotowanie oferty",
-    description:
-      "Naucz się tworzyć oferty, które spełniają wymagania zamawiającego. Krok po kroku przez SIWZ i dokumentację.",
-    icon: FileEdit,
-    badge: "Darmowy",
-    badgeVariant: "secondary",
-    locked: false,
-    progress: null,
-  },
-  {
-    id: 3,
-    title: "Strategia wygrywania",
-    description:
-      "Zaawansowane techniki zwiększania szans na wygraną. Analiza konkurencji, ceny ofertowe i kryteria oceny.",
-    icon: Target,
-    badge: "Basic+",
-    badgeVariant: "outline",
-    locked: true,
-    progress: null,
-  },
-  {
-    id: 4,
-    title: "Zaawansowane techniki",
-    description:
-      "Konsorcja, podwykonawstwo, odwołania do KIO oraz zarządzanie portfelem zamówień na poziomie eksperckim.",
-    icon: Zap,
-    badge: "Pro+",
-    badgeVariant: "outline",
-    locked: true,
-    progress: null,
-  },
-]
+const TIER_LABEL: Record<string, string> = {
+  free: "Darmowy",
+  basic: "Basic+",
+  pro: "Pro+",
+}
 
-export default function AkademiaPage() {
+export default async function AkademiaPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/auth/login")
+
+  const [progress, userTier] = await Promise.all([
+    getCourseProgress(),
+    getUserTier(),
+  ])
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">
           Akademia Zamówień Publicznych
         </h1>
-        <p className="mt-2 text-base text-muted-foreground">
-          Naucz się wygrywać przetargi
+        <p className="mt-2 text-muted-foreground">
+          Naucz się wygrywać przetargi — od podstaw do eksperta
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {MODULES.map((mod) => {
-          const Icon = mod.icon
+      {/* Modules grid */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        {COURSE_MODULES.map((mod) => {
+          const Icon = MODULE_ICONS[mod.id] ?? BookOpen
+          const isLocked = mod.tier !== "free" && userTier === "free"
+          const hasLessons = mod.lessons.length > 0
+
+          // Calculate progress
+          const completedLessons = mod.lessons.filter((l) =>
+            progress.some(
+              (p) => p.module_id === mod.id && p.lesson_id === l.id
+            )
+          ).length
+          const progressPct = hasLessons
+            ? Math.round((completedLessons / mod.lessons.length) * 100)
+            : 0
+          const isComplete = hasLessons && completedLessons === mod.lessons.length
+          const firstUncompletedLesson = mod.lessons.find(
+            (l) => !progress.some((p) => p.module_id === mod.id && p.lesson_id === l.id)
+          )
+          const resumeLesson = firstUncompletedLesson ?? mod.lessons[0]
+
           return (
             <Card
               key={mod.id}
-              className={mod.locked ? "opacity-75" : undefined}
+              className={cn(
+                "border-zinc-800 bg-zinc-900/50 transition-all",
+                isLocked && "opacity-60",
+                isComplete && "border-emerald-800/50 bg-emerald-950/10"
+              )}
             >
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${
-                        mod.locked
-                          ? "bg-muted text-muted-foreground"
-                          : "bg-[#0EA5E9]/15 text-[#0EA5E9]"
-                      }`}
+                      className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-lg",
+                        isLocked
+                          ? "bg-zinc-800 text-zinc-500"
+                          : isComplete
+                          ? "bg-emerald-900/50 text-emerald-400"
+                          : "bg-sky-950/50 text-sky-400"
+                      )}
                     >
-                      {mod.locked ? (
+                      {isLocked ? (
                         <Lock className="size-5" />
+                      ) : isComplete ? (
+                        <CheckCircle className="size-5" />
                       ) : (
                         <Icon className="size-5" />
                       )}
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">
-                        Moduł {mod.id}
-                      </p>
+                      <p className="text-xs text-zinc-500">Moduł {mod.id}</p>
                       <CardTitle className="text-base">{mod.title}</CardTitle>
                     </div>
                   </div>
-                  <Badge variant={mod.badgeVariant}>{mod.badge}</Badge>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "shrink-0 text-xs",
+                      mod.tier === "free"
+                        ? "border-emerald-800 text-emerald-400"
+                        : "border-zinc-700 text-zinc-400"
+                    )}
+                  >
+                    {TIER_LABEL[mod.tier]}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <CardDescription>{mod.description}</CardDescription>
+                <CardDescription className="text-sm">
+                  {mod.description}
+                </CardDescription>
 
-                {/* Progress bar placeholder */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Postęp</span>
-                    <span>{mod.locked ? "—" : "Nie rozpoczęto"}</span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-[#0EA5E9] transition-all"
-                      style={{ width: `${mod.progress ?? 0}%` }}
-                    />
-                  </div>
-                </div>
+                {hasLessons && (
+                  <>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs text-zinc-500">
+                        <span>{completedLessons}/{mod.lessons.length} lekcji</span>
+                        <span>{progressPct}%</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-zinc-800">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            isComplete ? "bg-emerald-500" : "bg-sky-500"
+                          )}
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                    </div>
 
-                {mod.locked ? (
+                    {/* Lesson list */}
+                    <div className="space-y-1">
+                      {mod.lessons.map((lesson) => {
+                        const done = progress.some(
+                          (p) => p.module_id === mod.id && p.lesson_id === lesson.id
+                        )
+                        return (
+                          <Link
+                            key={lesson.id}
+                            href={
+                              isLocked
+                                ? "#"
+                                : `/dashboard/akademia/${mod.id}/${lesson.id}`
+                            }
+                            className={cn(
+                              "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                              isLocked
+                                ? "cursor-not-allowed text-zinc-600"
+                                : done
+                                ? "text-emerald-400 hover:bg-emerald-950/30"
+                                : "text-zinc-300 hover:bg-zinc-800"
+                            )}
+                          >
+                            {done ? (
+                              <CheckCircle className="size-3.5 shrink-0 text-emerald-500" />
+                            ) : (
+                              <div className="size-3.5 shrink-0 rounded-full border border-zinc-600" />
+                            )}
+                            <span className="flex-1 truncate">{lesson.title}</span>
+                            <span className="text-xs text-zinc-600">{lesson.duration}</span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* CTA */}
+                {isLocked ? (
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full"
+                    className="w-full border-zinc-700 text-zinc-500"
                     disabled
                   >
                     <Lock className="size-3.5" />
-                    Odblokuj w planie {mod.badge}
+                    Odblokuj w planie {TIER_LABEL[mod.tier]}
                   </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="w-full bg-[#0EA5E9] text-white hover:bg-[#0EA5E9]/90"
+                ) : isComplete ? (
+                  <Link
+                    href={`/dashboard/akademia/${mod.id}/${mod.lessons[0].id}`}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "w-full border-emerald-800 text-emerald-400 hover:bg-emerald-950/30"
+                    )}
                   >
-                    <PlayCircle className="size-3.5" />
-                    Rozpocznij moduł
-                  </Button>
-                )}
+                    <CheckCircle className="size-3.5" />
+                    Ukończony — powtórz
+                  </Link>
+                ) : resumeLesson ? (
+                  <Link
+                    href={`/dashboard/akademia/${mod.id}/${resumeLesson.id}`}
+                    className={cn(
+                      buttonVariants({ size: "sm" }),
+                      "w-full bg-sky-600 hover:bg-sky-500 text-white"
+                    )}
+                  >
+                    {completedLessons > 0 ? (
+                      <>
+                        <ChevronRight className="size-3.5" />
+                        Kontynuuj
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="size-3.5" />
+                        Rozpocznij moduł
+                      </>
+                    )}
+                  </Link>
+                ) : null}
               </CardContent>
             </Card>
           )
