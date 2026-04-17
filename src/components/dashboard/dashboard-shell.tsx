@@ -19,6 +19,7 @@ import {
   Bookmark,
   Calculator,
   Trophy,
+  Star,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -62,6 +63,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Akademia", href: "/dashboard/akademia", icon: GraduationCap },
   { label: "Statystyki", href: "/dashboard/statystyki", icon: BarChart3 },
   { label: "Osiągnięcia", href: "/dashboard/osiagniecia", icon: Trophy },
+  { label: "Hall of Fame", href: "/dashboard/hall-of-fame", icon: Star },
   { label: "Ustawienia", href: "/dashboard/ustawienia", icon: Settings },
 ]
 

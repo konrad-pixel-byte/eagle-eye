@@ -279,6 +279,86 @@ async function grantBadgeIfNew(
   return !error
 }
 
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+
+export interface LeaderboardEntry {
+  rank: number
+  userId: string
+  displayName: string
+  totalXp: number
+  level: number
+  levelTitle: string
+  levelIcon: string
+  currentStreak: number
+  badgeCount: number
+  tenderViews: number
+  isCurrentUser: boolean
+}
+
+export async function getLeaderboard(limit = 20): Promise<LeaderboardEntry[]> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const admin = createAdminClient()
+
+    // Fetch top users by XP
+    const { data: xpRows, error } = await admin
+      .from("user_xp")
+      .select("user_id, total_xp, level")
+      .order("total_xp", { ascending: false })
+      .limit(limit)
+
+    if (error || !xpRows?.length) return []
+
+    const userIds = xpRows.map((r) => r.user_id)
+
+    // Parallel: streaks, badges, views, profiles
+    const [streakRows, badgeRows, viewRows, profileRows] = await Promise.all([
+      admin.from("user_streaks").select("user_id, current_streak").in("user_id", userIds),
+      admin.from("user_badges").select("user_id, badge_id").in("user_id", userIds),
+      admin.from("user_tender_views").select("user_id, total_views").in("user_id", userIds),
+      admin.from("profiles").select("id, full_name, company_name").in("id", userIds),
+    ])
+
+    const streakMap = new Map((streakRows.data ?? []).map((r) => [r.user_id, r.current_streak]))
+    const viewMap = new Map((viewRows.data ?? []).map((r) => [r.user_id, r.total_views]))
+    const profileMap = new Map((profileRows.data ?? []).map((r) => [r.id, r]))
+
+    // Count badges per user
+    const badgeCountMap = new Map<string, number>()
+    for (const b of badgeRows.data ?? []) {
+      badgeCountMap.set(b.user_id, (badgeCountMap.get(b.user_id) ?? 0) + 1)
+    }
+
+    return xpRows.map((row, i) => {
+      const levelCfg = getLevelForXp(row.total_xp)
+      const profile = profileMap.get(row.user_id)
+      const displayName =
+        profile?.full_name?.trim() ||
+        profile?.company_name?.trim() ||
+        `Użytkownik #${i + 1}`
+
+      return {
+        rank: i + 1,
+        userId: row.user_id,
+        displayName,
+        totalXp: row.total_xp,
+        level: levelCfg.level,
+        levelTitle: levelCfg.title,
+        levelIcon: levelCfg.icon,
+        currentStreak: streakMap.get(row.user_id) ?? 0,
+        badgeCount: badgeCountMap.get(row.user_id) ?? 0,
+        tenderViews: viewMap.get(row.user_id) ?? 0,
+        isCurrentUser: row.user_id === user.id,
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
 export async function grantWelcomeBadge(): Promise<void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
