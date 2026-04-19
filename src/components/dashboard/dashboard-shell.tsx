@@ -126,6 +126,7 @@ function NavLink({ item, pathname, onClick, badgeCount }: NavLinkProps) {
     <Link
       href={item.href}
       onClick={onClick}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
         "before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:transition-all",
