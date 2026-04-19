@@ -49,17 +49,36 @@ export const viewport: Viewport = {
   ],
 };
 
+function getSupabaseOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabaseOrigin = getSupabaseOrigin();
   return (
     <html
       lang="pl"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {supabaseOrigin && (
+          <>
+            <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={supabaseOrigin} />
+          </>
+        )}
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"
