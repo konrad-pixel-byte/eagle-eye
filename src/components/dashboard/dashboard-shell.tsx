@@ -179,7 +179,7 @@ function SidebarContent({ user, pathname, onNavClick, gamificationState, bookmar
 
       {/* Nav */}
       <ScrollArea className="flex-1 py-3">
-        <nav className="flex flex-col gap-0.5 px-2">
+        <nav aria-label="Główna nawigacja" className="flex flex-col gap-0.5 px-2">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.href}
@@ -245,7 +245,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, bookmarkC
     <div className="flex min-h-[100dvh] overflow-hidden bg-background">
       <CommandPalette />
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
+      <aside aria-label="Panel boczny" className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
         <SidebarContent user={user} pathname={pathname} gamificationState={gamificationState} bookmarkCount={bookmarkCount} />
       </aside>
 
