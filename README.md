@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eagle Eye
 
-## Getting Started
+Monitoring przetargów szkoleniowych dla firm szkoleniowych i konsultingowych.
+Agreguje ogłoszenia z BZP, TED, BUR i KFS, punktuje je AI-owo i pomaga
+przygotować konkurencyjną ofertę.
 
-First, run the development server:
+Produkcja: [eagle-eye.hatedapps.pl](https://eagle-eye.hatedapps.pl)
+
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) + React 19
+- **TypeScript**
+- **Supabase** — Postgres, Auth, Storage (self-hosted na Coolify VPS)
+- **Tailwind CSS v4** + shadcn/ui v2 (`@base-ui/react`)
+- **Resend** — wysyłka e-maili
+- **Stripe** — subskrypcje
+- **Anthropic Claude** — scoring, streszczenia, bid coach
+
+## Rozwój lokalny
 
 ```bash
+npm install
+cp .env.example .env.local   # uzupełnij klucze
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Dev server na [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Skrypty
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — tryb deweloperski
+- `npm run build` — build produkcyjny
+- `npm run start` — uruchomienie builda
+- `npm run lint` — ESLint
+- `npx tsc --noEmit` — sprawdzenie typów
 
-## Learn More
+## Struktura
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    (public)          page.tsx, polityka-prywatnosci, regulamin, status
+    auth/             login, signup, forgot-password, callback
+    dashboard/        przetargi, zapisane, powiadomienia, ustawienia, ...
+    api/              health, scraper/{bzp,ted,all}, notifications, stripe, ai
+  components/
+    landing/          Navbar, Hero, Pricing, FAQ, Footer
+    dashboard/        DashboardShell, BookmarkButton, AiUsageMini, ...
+    ui/               shadcn/ui v2 primitives
+  lib/
+    actions/          Server actions (admin, alerts, bookmarks, ...)
+    supabase/         SSR + client helpers
+    types.ts          Współdzielone typy domenowe
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Cron i scrapery
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Zadania w tle autoryzowane nagłówkiem `Authorization: Bearer $CRON_SECRET`:
 
-## Deploy on Vercel
+- `POST /api/scraper/bzp`
+- `POST /api/scraper/ted`
+- `POST /api/scraper/all`
+- `POST /api/notifications/send-daily`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Status systemu (publiczny health check): `/status`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Bezpieczeństwo
+
+Zgłoszenia podatności: zobacz [SECURITY.md](./SECURITY.md).
+
+## Licencja
+
+Źródła prywatne. Wszelkie prawa zastrzeżone.
