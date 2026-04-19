@@ -243,6 +243,12 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, bookmarkC
 
   return (
     <div className="flex min-h-[100dvh] overflow-hidden bg-background">
+      <a
+        href="#main-content"
+        className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-3 focus-visible:z-[60] focus-visible:rounded-md focus-visible:bg-[#0EA5E9] focus-visible:px-3 focus-visible:py-1.5 focus-visible:text-xs focus-visible:font-semibold focus-visible:text-zinc-950"
+      >
+        Przejdź do treści
+      </a>
       <CommandPalette />
       {/* Desktop sidebar */}
       <aside aria-label="Panel boczny" className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
@@ -375,7 +381,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, bookmarkC
 
         {/* Page content */}
         <ScrollArea className="flex-1">
-          <main className="min-h-full p-6">
+          <main id="main-content" className="min-h-full p-6">
             {children}
           </main>
         </ScrollArea>
