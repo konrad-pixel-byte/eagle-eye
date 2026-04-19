@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Strip the "X-Powered-By: Next.js" header — minor fingerprint reduction.
+  poweredByHeader: false,
   async headers() {
     return [
       {
