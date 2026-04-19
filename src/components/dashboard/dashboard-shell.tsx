@@ -288,6 +288,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, bookmarkC
                 new KeyboardEvent("keydown", { key: "k", metaKey: true })
               )
             }}
+            aria-label="Otwórz wyszukiwarkę (Cmd+K)"
             className="relative hidden h-8 max-w-xs flex-1 items-center gap-2 rounded-lg border border-input bg-transparent px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/50 sm:flex"
           >
             <Search className="size-3.5" />

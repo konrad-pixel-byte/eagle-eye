@@ -68,7 +68,12 @@ export function Navbar() {
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
             render={
-              <Button variant="ghost" size="icon" className="md:hidden text-zinc-400" />
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Otwórz menu"
+                className="md:hidden text-zinc-400"
+              />
             }
           >
             <Menu className="h-5 w-5" strokeWidth={1.5} />
