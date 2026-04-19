@@ -37,11 +37,12 @@ export default async function OpengraphImage() {
               alignItems: "center",
               justifyContent: "center",
               color: "#0EA5E9",
-              fontSize: 30,
+              fontSize: 22,
               fontWeight: 700,
+              letterSpacing: "-0.02em",
             }}
           >
-            ◉
+            EE
           </div>
           <div
             style={{
