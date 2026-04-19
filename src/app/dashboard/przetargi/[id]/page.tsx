@@ -396,20 +396,26 @@ export default async function Page({
               <div className="flex flex-col gap-2">
                 <BookmarkButton tenderId={tender.id} isBookmarked={isBookmarked} />
                 <CopyLinkButton />
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2"
+                <Link
+                  href="/dashboard/kalkulator"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "w-full justify-start gap-2"
+                  )}
                 >
                   <CalculatorIcon className="size-4 text-sky-400" />
                   Oblicz ofertę
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2"
+                </Link>
+                <Link
+                  href="/dashboard/ustawienia"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "w-full justify-start gap-2"
+                  )}
                 >
                   <BellIcon className="size-4 text-emerald-400" />
                   Ustaw alert
-                </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
