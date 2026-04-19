@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
 import { getGamificationState, updateLoginStreak } from "@/lib/actions/gamification"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
+import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner"
 import type { SubscriptionTier } from "@/lib/subscription"
 
 export default async function DashboardLayout({
@@ -41,6 +42,8 @@ export default async function DashboardLayout({
       (user.user_metadata?.full_name as string | undefined) ?? undefined,
   }
 
+  const emailUnverified = !user.email_confirmed_at && Boolean(user.email)
+
   return (
     <DashboardShell
       user={displayUser}
@@ -48,6 +51,11 @@ export default async function DashboardLayout({
       userTier={userTier}
       gamificationState={gamificationState}
     >
+      {emailUnverified && user.email && (
+        <div className="mb-4">
+          <EmailVerificationBanner email={user.email} />
+        </div>
+      )}
       {children}
     </DashboardShell>
   )
