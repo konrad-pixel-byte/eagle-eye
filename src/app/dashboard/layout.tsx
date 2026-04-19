@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
+import { getBookmarkCount } from "@/lib/actions/bookmarks"
 import { getGamificationState, updateLoginStreak } from "@/lib/actions/gamification"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner"
@@ -22,8 +23,9 @@ export default async function DashboardLayout({
 
   void updateLoginStreak()
 
-  const [unreadCount, profileResult, gamificationState] = await Promise.all([
+  const [unreadCount, bookmarkCount, profileResult, gamificationState] = await Promise.all([
     getUnreadAlertCount(),
+    getBookmarkCount(),
     supabase
       .from("profiles")
       .select("subscription_tier")
@@ -48,6 +50,7 @@ export default async function DashboardLayout({
     <DashboardShell
       user={displayUser}
       unreadAlertCount={unreadCount}
+      bookmarkCount={bookmarkCount}
       userTier={userTier}
       gamificationState={gamificationState}
     >

@@ -55,11 +55,12 @@ interface NavItem {
   label: string
   href: string
   icon: React.ElementType
+  badgeKey?: "bookmarks"
 }
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Przetargi", href: "/dashboard/przetargi", icon: FileText },
-  { label: "Zapisane", href: "/dashboard/zapisane", icon: Bookmark },
+  { label: "Zapisane", href: "/dashboard/zapisane", icon: Bookmark, badgeKey: "bookmarks" },
   { label: "Kalkulator", href: "/dashboard/kalkulator", icon: Calculator },
   { label: "Finansowanie BUR/KFS", href: "/dashboard/finansowanie", icon: Landmark },
   { label: "Akademia", href: "/dashboard/akademia", icon: GraduationCap },
@@ -79,6 +80,7 @@ interface DashboardShellProps {
   }
   gamificationState?: UserGamificationState | null
   unreadAlertCount?: number
+  bookmarkCount?: number
   userTier?: SubscriptionTier
 }
 
@@ -113,9 +115,10 @@ interface NavLinkProps {
   item: NavItem
   pathname: string
   onClick?: () => void
+  badgeCount?: number
 }
 
-function NavLink({ item, pathname, onClick }: NavLinkProps) {
+function NavLink({ item, pathname, onClick, badgeCount }: NavLinkProps) {
   const isActive = pathname.startsWith(item.href)
   const Icon = item.icon
 
@@ -132,7 +135,19 @@ function NavLink({ item, pathname, onClick }: NavLinkProps) {
       )}
     >
       <Icon className="size-4 shrink-0" />
-      {item.label}
+      <span className="flex-1">{item.label}</span>
+      {badgeCount !== undefined && badgeCount > 0 && (
+        <span
+          className={cn(
+            "ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
+            isActive
+              ? "bg-[#0EA5E9]/20 text-[#0EA5E9]"
+              : "bg-muted text-muted-foreground"
+          )}
+        >
+          {badgeCount > 99 ? "99+" : badgeCount}
+        </span>
+      )}
     </Link>
   )
 }
@@ -142,9 +157,10 @@ interface SidebarContentProps {
   pathname: string
   onNavClick?: () => void
   gamificationState?: UserGamificationState | null
+  bookmarkCount?: number
 }
 
-function SidebarContent({ user, pathname, onNavClick, gamificationState }: SidebarContentProps) {
+function SidebarContent({ user, pathname, onNavClick, gamificationState, bookmarkCount }: SidebarContentProps) {
   const router = useRouter()
   const initials = getInitials(user.full_name, user.email)
   const displayName = user.full_name ?? user.email
@@ -169,6 +185,7 @@ function SidebarContent({ user, pathname, onNavClick, gamificationState }: Sideb
               item={item}
               pathname={pathname}
               onClick={onNavClick}
+              badgeCount={item.badgeKey === "bookmarks" ? bookmarkCount : undefined}
             />
           ))}
         </nav>
@@ -212,7 +229,7 @@ function SidebarContent({ user, pathname, onNavClick, gamificationState }: Sideb
   )
 }
 
-export function DashboardShell({ children, user, unreadAlertCount = 0, userTier = "free", gamificationState }: DashboardShellProps) {
+export function DashboardShell({ children, user, unreadAlertCount = 0, bookmarkCount = 0, userTier = "free", gamificationState }: DashboardShellProps) {
   const pathname = usePathname()
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const initials = getInitials(user.full_name, user.email)
@@ -228,7 +245,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, userTier 
       <CommandPalette />
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-background/80 backdrop-blur-sm md:flex">
-        <SidebarContent user={user} pathname={pathname} gamificationState={gamificationState} />
+        <SidebarContent user={user} pathname={pathname} gamificationState={gamificationState} bookmarkCount={bookmarkCount} />
       </aside>
 
       {/* Main column */}
@@ -258,6 +275,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, userTier 
                 pathname={pathname}
                 onNavClick={() => setSheetOpen(false)}
                 gamificationState={gamificationState}
+                bookmarkCount={bookmarkCount}
               />
             </SheetContent>
           </Sheet>

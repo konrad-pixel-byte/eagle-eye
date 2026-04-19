@@ -47,3 +47,16 @@ export async function getUserBookmarks(): Promise<string[]> {
 
   return (data ?? []).map((row) => row.tender_id);
 }
+
+export async function getBookmarkCount(): Promise<number> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 0;
+
+  const { count } = await supabase
+    .from("saved_tenders")
+    .select("tender_id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  return count ?? 0;
+}
