@@ -35,6 +35,7 @@ import { recordTenderView } from "@/lib/actions/gamification"
 import { BookmarkButton } from "@/components/dashboard/bookmark-button"
 import { CopyLinkButton } from "@/components/dashboard/copy-link-button"
 import { AiPanel } from "./ai-panel"
+import { AiUsageMini } from "@/components/dashboard/ai-usage-mini"
 import type { Tender } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
@@ -206,6 +207,7 @@ export default async function Page({
         {/* Left column — 2/3 */}
         <div className="flex flex-col gap-6 lg:col-span-2">
           {/* AI Panel */}
+          <AiUsageMini />
           <AiPanel
             tenderId={tender.id}
             userTier={userTier}
