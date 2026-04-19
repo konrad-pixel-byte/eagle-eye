@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Navbar />
-      <main className="mx-auto max-w-3xl px-6 py-16">
+      <main id="main-content" className="mx-auto max-w-3xl px-6 py-16">
         <nav className="mb-8 text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-300">
             Strona główna
