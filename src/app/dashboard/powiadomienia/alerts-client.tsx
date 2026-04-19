@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { markAlertAsRead, markAllAlertsAsRead } from "@/lib/actions/alerts"
+import { DeadlineProximity } from "@/components/deadline-proximity"
 
 interface AlertsClientProps {
   alerts: AlertRow[]
@@ -185,9 +186,10 @@ function AlertCard({ alert, onMarkRead, isPending }: AlertCardProps) {
               {alert.tender.source}
             </Badge>
           )}
-          {deadline && (
-            <span className="text-muted-foreground">
+          {deadline && alert.tender?.deadline_submission && (
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
               Termin: <span className="text-foreground">{deadline}</span>
+              <DeadlineProximity deadline={alert.tender.deadline_submission} />
             </span>
           )}
         </div>
