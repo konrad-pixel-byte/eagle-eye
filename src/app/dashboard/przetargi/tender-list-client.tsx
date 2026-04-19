@@ -29,6 +29,7 @@ import {
 import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, Bookmark } from "lucide-react"
 import { toggleBookmark } from "@/lib/actions/bookmarks"
 import { EmptyState } from "@/components/empty-state"
+import { DeadlineProximity } from "@/components/deadline-proximity"
 import type { Tender } from "@/lib/types"
 
 const WOJEWODZTWA = [
@@ -399,11 +400,16 @@ export function TenderListClient({ tenders, bookmarkedIds }: TenderListClientPro
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm tabular-nums">
-                        {tender.deadline_submission
-                          ? formatDate(tender.deadline_submission)
-                          : "—"}
-                      </span>
+                      {tender.deadline_submission ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm tabular-nums">
+                            {formatDate(tender.deadline_submission)}
+                          </span>
+                          <DeadlineProximity deadline={tender.deadline_submission} />
+                        </div>
+                      ) : (
+                        <span className="text-sm tabular-nums">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={tender.status} />

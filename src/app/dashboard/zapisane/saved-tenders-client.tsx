@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { EmptyState } from "@/components/empty-state"
 import { buttonVariants } from "@/components/ui/button"
+import { DeadlineProximity } from "@/components/deadline-proximity"
 import { removeSavedTender } from "@/lib/actions/saved-tenders"
 import { cn } from "@/lib/utils"
 import type { Tender } from "@/lib/types"
@@ -226,6 +227,10 @@ export function SavedTendersClient({ savedTenders }: SavedTendersClientProps) {
                     <span className="font-mono tabular-nums">
                       {formatDate(tender.deadline_submission)}
                     </span>
+                    <DeadlineProximity
+                      deadline={tender.deadline_submission}
+                      className="ml-auto"
+                    />
                   </div>
                 )}
               </div>
