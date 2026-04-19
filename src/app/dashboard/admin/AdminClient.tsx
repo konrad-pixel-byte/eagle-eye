@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { triggerScraper } from "@/lib/actions/admin"
+import { triggerScraper, triggerNotifications } from "@/lib/actions/admin"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Zap, CheckCircle, XCircle } from "lucide-react"
+import { RefreshCw, Zap, CheckCircle, XCircle, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface ScraperResult {
@@ -22,6 +22,15 @@ export function ScraperTriggers() {
     startTransition(async () => {
       const result = await triggerScraper(type)
       setResults((prev) => ({ ...prev, [type]: result }))
+      setActiveType(null)
+    })
+  }
+
+  function runNotifications() {
+    setActiveType("notifications")
+    startTransition(async () => {
+      const result = await triggerNotifications()
+      setResults((prev) => ({ ...prev, notifications: result }))
       setActiveType(null)
     })
   }
@@ -49,6 +58,23 @@ export function ScraperTriggers() {
             {type === "all" ? "Oba scraperzy" : `Scraper ${type.toUpperCase()}`}
           </Button>
         ))}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={pending}
+          onClick={runNotifications}
+          className={cn(
+            "border-zinc-700 text-zinc-300 hover:bg-zinc-800",
+            activeType === "notifications" && "opacity-60"
+          )}
+        >
+          {activeType === "notifications" ? (
+            <RefreshCw className="size-3.5 animate-spin" />
+          ) : (
+            <Mail className="size-3.5" />
+          )}
+          Digest dzienny
+        </Button>
       </div>
 
       {Object.entries(results).map(([type, result]) => (

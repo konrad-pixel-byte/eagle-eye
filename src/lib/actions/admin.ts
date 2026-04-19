@@ -120,6 +120,36 @@ export async function getAdminStats(): Promise<AdminStats> {
   }
 }
 
+export async function triggerNotifications(): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin()
+
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return { ok: false, message: "CRON_SECRET nie ustawiony." }
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://eagle-eye.hatedapps.pl"
+  const endpoint = `${appUrl}/api/notifications/send-daily`
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${cronSecret}` },
+    })
+    const body = await res.json() as Record<string, unknown>
+    if (!res.ok) {
+      return { ok: false, message: `HTTP ${res.status}: ${JSON.stringify(body)}` }
+    }
+    const emailsSent = (body.emailsSent as number | undefined) ?? 0
+    const usersNotified = (body.usersNotified as number | undefined) ?? 0
+    const emailErrors = (body.emailErrors as number | undefined) ?? 0
+    const errTail = emailErrors > 0 ? ` (błędów: ${emailErrors})` : ""
+    return { ok: true, message: `Wysłano ${emailsSent} maili do ${usersNotified} użytkowników${errTail}` }
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : "Błąd połączenia" }
+  }
+}
+
 export async function triggerScraper(
   type: "bzp" | "ted" | "all"
 ): Promise<{ ok: boolean; message: string; added?: number }> {
