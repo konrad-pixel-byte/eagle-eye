@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
@@ -122,6 +122,28 @@ export function SettingsClient({ profile, email }: SettingsClientProps) {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingNotif, setIsSavingNotif] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  // Hash-controlled tab so deep links like /dashboard/ustawienia#powiadomienia
+  // open the right section (e.g. "Ustaw alert" button on tender detail).
+  const [activeTab, setActiveTab] = useState("profil");
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (hash === "profil" || hash === "powiadomienia" || hash === "preferencje") {
+      setActiveTab(hash);
+    }
+    function onHashChange() {
+      const next = window.location.hash.replace(/^#/, "");
+      if (next === "profil" || next === "powiadomienia" || next === "preferencje") {
+        setActiveTab(next);
+      }
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+  function handleTabChange(value: string) {
+    setActiveTab(value);
+    history.replaceState(null, "", `#${value}`);
+  }
   const [profileMsg, setProfileMsg] = useState<{
     type: "success" | "error";
     text: string;
@@ -234,7 +256,7 @@ export function SettingsClient({ profile, email }: SettingsClientProps) {
         </p>
       </div>
 
-      <Tabs defaultValue="profil">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="mb-6">
           <TabsTrigger value="profil">Profil</TabsTrigger>
           <TabsTrigger value="powiadomienia">Powiadomienia</TabsTrigger>

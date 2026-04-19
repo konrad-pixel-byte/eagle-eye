@@ -407,7 +407,7 @@ export default async function Page({
                   Oblicz ofertę
                 </Link>
                 <Link
-                  href="/dashboard/ustawienia"
+                  href="/dashboard/ustawienia#powiadomienia"
                   className={cn(
                     buttonVariants({ variant: "outline" }),
                     "w-full justify-start gap-2"
