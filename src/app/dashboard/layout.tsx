@@ -1,5 +1,13 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+
+// Dashboard routes are authenticated private views. robots.txt already
+// blocks crawlers but a route-level noindex is belt-and-braces in case a
+// dashboard URL ends up in a backlink or sitemap pull.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+}
 import { getUnreadAlertCount } from "@/lib/actions/alerts"
 import { getBookmarkCount } from "@/lib/actions/bookmarks"
 import { getGamificationState, updateLoginStreak } from "@/lib/actions/gamification"
