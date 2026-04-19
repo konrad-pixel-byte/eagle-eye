@@ -19,6 +19,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Silences the multi-lockfile inference warning — Eagle Eye's lockfile
+  // lives here, not at the parent workspace root.
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {
