@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Bookmark, Calendar, MapPin, Building2, Trash2 } from "lucide-react"
+import { Bookmark, Calendar, MapPin, Building2, Trash2, Search, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,10 +57,31 @@ function AiScoreBar({ score }: { score: number }) {
   )
 }
 
+type SourceFilter = "all" | "BZP" | "TED"
+type StatusFilter = "all" | "active" | "inactive"
+
 export function SavedTendersClient({ savedTenders }: SavedTendersClientProps) {
   const router = useRouter()
   const [items, setItems] = useState(savedTenders)
   const [removingIds, setRemovingIds] = useState<Set<string>>(() => new Set())
+  const [query, setQuery] = useState("")
+  const [source, setSource] = useState<SourceFilter>("all")
+  const [status, setStatus] = useState<StatusFilter>("all")
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return items.filter((row) => {
+      const t = row.tenders
+      if (source !== "all" && t.source !== source) return false
+      if (status === "active" && t.status !== "active") return false
+      if (status === "inactive" && t.status === "active") return false
+      if (q) {
+        const hay = `${t.title} ${t.contracting_authority ?? ""} ${t.voivodeship ?? ""}`.toLowerCase()
+        if (!hay.includes(q)) return false
+      }
+      return true
+    })
+  }, [items, query, source, status])
 
   async function handleRemove(e: React.MouseEvent, savedId: string) {
     e.stopPropagation()
@@ -100,9 +121,78 @@ export function SavedTendersClient({ savedTenders }: SavedTendersClientProps) {
     )
   }
 
+  const filtersActive = query !== "" || source !== "all" || status !== "all"
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {items.map((row) => {
+    <div className="flex flex-col gap-4">
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[200px] flex-1 max-w-md">
+          <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Szukaj po tytule, zamawiającym, województwie…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-transparent pl-8 pr-8 text-sm outline-none placeholder:text-muted-foreground focus:border-[#0EA5E9]"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Wyczyść wyszukiwanie"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-1 rounded-md border border-input p-0.5">
+          {(["all", "BZP", "TED"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSource(s)}
+              className={cn(
+                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                source === s
+                  ? "bg-[#0EA5E9]/15 text-[#0EA5E9]"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {s === "all" ? "Wszystkie" : s}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1 rounded-md border border-input p-0.5">
+          {(["all", "active", "inactive"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatus(s)}
+              className={cn(
+                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                status === s
+                  ? "bg-[#0EA5E9]/15 text-[#0EA5E9]"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {s === "all" ? "Dowolny" : s === "active" ? "Aktywne" : "Zakończone"}
+            </button>
+          ))}
+        </div>
+        <span className="ml-auto font-mono text-xs text-muted-foreground">
+          {filtered.length} / {items.length}
+        </span>
+      </div>
+
+      {filtered.length === 0 && filtersActive ? (
+        <div className="rounded-lg border border-dashed border-border/50 p-8 text-center text-sm text-muted-foreground">
+          Żaden zapisany przetarg nie pasuje do filtrów.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {filtered.map((row) => {
         const tender = row.tenders
         return (
           <Card
@@ -197,6 +287,8 @@ export function SavedTendersClient({ savedTenders }: SavedTendersClientProps) {
           </Card>
         )
       })}
+        </div>
+      )}
     </div>
   )
 }
