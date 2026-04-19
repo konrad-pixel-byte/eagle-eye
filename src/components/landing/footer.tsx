@@ -55,14 +55,20 @@ export function Footer() {
                 </span>
               </li>
               <li>
-                <span className="text-xs text-zinc-600">
+                <Link
+                  href="/polityka-prywatnosci"
+                  className="text-xs text-zinc-500 hover:text-zinc-300"
+                >
                   Polityka prywatności
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-xs text-zinc-600">
+                <Link
+                  href="/regulamin"
+                  className="text-xs text-zinc-500 hover:text-zinc-300"
+                >
                   Regulamin
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
