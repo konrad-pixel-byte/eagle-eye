@@ -50,9 +50,12 @@ export function Footer() {
             </p>
             <ul className="mt-3 space-y-2">
               <li>
-                <span className="text-xs text-zinc-600">
-                  kontakt@eagleeye.pl
-                </span>
+                <a
+                  href="mailto:kontakt@hatedapps.pl"
+                  className="text-xs text-zinc-500 hover:text-zinc-300"
+                >
+                  kontakt@hatedapps.pl
+                </a>
               </li>
               <li>
                 <Link
