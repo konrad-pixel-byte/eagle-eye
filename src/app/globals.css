@@ -137,3 +137,50 @@
     @apply font-sans scroll-smooth;
   }
 }
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+
+  [data-print-hide],
+  nav[aria-label="Sidebar"],
+  aside,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  a {
+    color: #0a0a0a !important;
+    text-decoration: underline;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #52525b;
+  }
+
+  [class*="rounded-"] {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    break-after: avoid;
+    color: #0a0a0a !important;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}
