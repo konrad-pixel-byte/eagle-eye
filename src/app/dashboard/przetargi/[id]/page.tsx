@@ -33,6 +33,7 @@ import { getUserBookmarks } from "@/lib/actions/bookmarks"
 import { getUserTier } from "@/lib/actions/subscription"
 import { recordTenderView } from "@/lib/actions/gamification"
 import { BookmarkButton } from "@/components/dashboard/bookmark-button"
+import { CopyLinkButton } from "@/components/dashboard/copy-link-button"
 import { AiPanel } from "./ai-panel"
 import type { Tender } from "@/lib/types"
 
@@ -79,6 +80,41 @@ function StatusBadge({ status }: { status: TenderStatus }) {
   }
   const { label, className } = config[status]
   return <Badge className={`border text-sm px-3 h-7 ${className}`}>{label}</Badge>
+}
+
+function DeadlineBadge({ deadline }: { deadline: string }) {
+  const msLeft = new Date(deadline).getTime() - Date.now()
+  const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24))
+
+  if (daysLeft < 0) {
+    return (
+      <Badge className="bg-muted text-muted-foreground border border-border text-sm px-3 h-7 gap-1.5">
+        <ClockIcon className="size-3.5" />
+        Termin minął
+      </Badge>
+    )
+  }
+
+  const className =
+    daysLeft <= 3
+      ? "bg-red-500/15 text-red-400 border-red-500/20"
+      : daysLeft <= 7
+        ? "bg-amber-500/15 text-amber-400 border-amber-500/20"
+        : "bg-sky-500/15 text-sky-400 border-sky-500/20"
+
+  const label =
+    daysLeft === 0
+      ? "Dziś termin!"
+      : daysLeft === 1
+        ? "Zostaje 1 dzień"
+        : `Zostaje ${daysLeft} dni`
+
+  return (
+    <Badge className={`border text-sm px-3 h-7 gap-1.5 ${className}`}>
+      <ClockIcon className="size-3.5" />
+      {label}
+    </Badge>
+  )
 }
 
 function AiScoreBadge({ score }: { score: number }) {
@@ -156,6 +192,9 @@ export default async function Page({
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={tender.status} />
+          {tender.deadline_submission && tender.status === "active" && (
+            <DeadlineBadge deadline={tender.deadline_submission} />
+          )}
           {tender.ai_relevance_score !== null && (
             <AiScoreBadge score={tender.ai_relevance_score} />
           )}
@@ -354,6 +393,7 @@ export default async function Page({
             <CardContent>
               <div className="flex flex-col gap-2">
                 <BookmarkButton tenderId={tender.id} isBookmarked={isBookmarked} />
+                <CopyLinkButton />
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"

@@ -26,12 +26,42 @@ export interface Tender {
   updated_at: string;
 }
 
+export interface AlertRow {
+  id: string;
+  tender_id: string | null;
+  channel: string;
+  title: string;
+  body: string | null;
+  read: boolean;
+  sent_at: string;
+  opened_at: string | null;
+  tender: {
+    id: string;
+    title: string;
+    source: string;
+    voivodeship: string | null;
+    deadline_submission: string | null;
+  } | null;
+}
+
 export interface AdminStats {
   tenderCount: number
   bzpCount: number
   tedCount: number
   savedTenderCount: number
   userCount: number
+  tierBreakdown: { free: number; basic: number; pro: number; enterprise: number }
+  activePaying: number
+  trialingCount: number
+  pastDueCount: number
+  mrrGrosze: number
   recentTenders: { id: string; title: string; source: string; created_at: string }[]
   recentUsers: { id: string; email: string; created_at: string }[]
+  cronHeartbeats: {
+    job_name: string
+    last_run_at: string
+    last_status: "ok" | "fail"
+    duration_ms: number | null
+    details: Record<string, unknown> | null
+  }[]
 }

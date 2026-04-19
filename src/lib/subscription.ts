@@ -39,6 +39,22 @@ export function getRequiredTierForFeature(feature: string): SubscriptionTier {
   return FEATURE_ACCESS[feature] ?? "free";
 }
 
+// ─── AI usage quotas (calls per day per endpoint) ────────────────────────────
+
+export type AiEndpoint = "score" | "summary" | "bid-coach";
+
+export const AI_DAILY_QUOTA: Record<SubscriptionTier, Record<AiEndpoint, number>> = {
+  free:       { score: 10,  summary: 0,   "bid-coach": 0   },
+  basic:      { score: 100, summary: 50,  "bid-coach": 0   },
+  pro:        { score: 500, summary: 250, "bid-coach": 100 },
+  enterprise: { score: 5000, summary: 2500, "bid-coach": 1000 },
+};
+
+export function getAiQuota(tier: SubscriptionTier, endpoint: AiEndpoint): number {
+  return AI_DAILY_QUOTA[tier][endpoint];
+}
+
+
 export function getTierLabel(tier: SubscriptionTier): string {
   const labels: Record<SubscriptionTier, string> = {
     free: "Free",

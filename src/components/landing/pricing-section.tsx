@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, ShieldCheck, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
@@ -186,6 +186,43 @@ export function PricingSection() {
           {tiers.map((tier, i) => (
             <PricingCard key={tier.name} tier={tier} index={i} />
           ))}
+        </div>
+
+        {/* Trust stripe — money-back, cancel anytime, no CC */}
+        <div className="mt-10 grid gap-4 border-t border-zinc-800/60 pt-8 sm:grid-cols-3">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-500" strokeWidth={2} />
+            <div>
+              <p className="text-sm font-medium text-zinc-200">
+                30 dni gwarancji zwrotu
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">
+                Nie spodobało się? Zwracamy 100% bez pytań.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <Clock className="mt-0.5 size-4 shrink-0 text-sky-500" strokeWidth={2} />
+            <div>
+              <p className="text-sm font-medium text-zinc-200">
+                14 dni bez karty kredytowej
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">
+                Rejestracja emailem, karta tylko gdy zdecydujesz.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <XCircle className="mt-0.5 size-4 shrink-0 text-zinc-500" strokeWidth={2} />
+            <div>
+              <p className="text-sm font-medium text-zinc-200">
+                Anulujesz jednym kliknięciem
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">
+                Bez telefonów, bez „zastrzyków utrzymaniowych”.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

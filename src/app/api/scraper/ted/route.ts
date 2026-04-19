@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAndMapTedTenders } from "@/lib/scraper/ted";
 import { notifyMatchingUsers } from "@/lib/scraper/notify";
+import { recordCronHeartbeat } from "@/lib/cron-heartbeat";
 import type { Tender } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
@@ -123,10 +124,18 @@ export async function POST(
     );
   }
 
+  const startedAt = Date.now();
+
   // 1. Fetch from TED API
   const { tenders: fetched, fetchError } = await fetchAndMapTedTenders(DAYS_BACK);
 
   if (fetchError && fetched.length === 0) {
+    void recordCronHeartbeat({
+      job: "scraper-ted",
+      status: "fail",
+      durationMs: Date.now() - startedAt,
+      details: { error: "TED API niedostępne", fetchError },
+    });
     // Graceful degradation: API unavailable — return 200 so cron doesn't retry endlessly
     return NextResponse.json({
       fetched: 0,
@@ -178,6 +187,18 @@ export async function POST(
 
   if (fetchError) result.error = fetchError;
   if (insertError) result.insertError = insertError;
+
+  void recordCronHeartbeat({
+    job: "scraper-ted",
+    status: insertError ? "fail" : "ok",
+    durationMs: Date.now() - startedAt,
+    details: {
+      fetched: result.fetched,
+      new_count: result.new_count,
+      inserted: result.inserted,
+      ...(insertError ? { insertError } : {}),
+    },
+  });
 
   return NextResponse.json(result);
 }

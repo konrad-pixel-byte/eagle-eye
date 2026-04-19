@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { scoreTender, summarizeTender, generateBidAdvice } from "@/lib/ai/tender-analysis";
 import type { Tender } from "@/lib/types";
-import type { SubscriptionTier } from "@/lib/subscription";
+import { getAiQuota, type AiEndpoint, type SubscriptionTier } from "@/lib/subscription";
 
 // Free users get limited AI calls; paid users get unlimited
 const AI_TIER_REQUIRED: Record<string, SubscriptionTier> = {
@@ -65,6 +66,39 @@ export async function POST(req: NextRequest) {
       { error: `Ta funkcja AI wymaga planu ${required}+` },
       { status: 403 }
     )
+  }
+
+  // Enforce daily quota via atomic Postgres RPC
+  const quota = getAiQuota(userTier, type as AiEndpoint);
+  if (quota <= 0) {
+    return NextResponse.json(
+      { error: "Ta funkcja nie jest dostępna w Twoim planie" },
+      { status: 403 }
+    );
+  }
+
+  const admin = createAdminClient();
+  const { data: usageRow, error: usageErr } = await admin.rpc("increment_ai_usage", {
+    p_user_id: user.id,
+    p_endpoint: type,
+    p_limit: quota,
+  });
+
+  if (usageErr) {
+    console.error("[analyze-tender] increment_ai_usage failed:", usageErr.message);
+    return NextResponse.json({ error: "Błąd sprawdzania limitu" }, { status: 500 });
+  }
+
+  const usage = Array.isArray(usageRow) ? usageRow[0] : usageRow;
+  if (!usage?.allowed) {
+    return NextResponse.json(
+      {
+        error: `Dzienny limit osiągnięty (${quota}/${quota}). Zresetuje się jutro lub zwiększ plan.`,
+        quota,
+        used: usage?.new_count ?? quota,
+      },
+      { status: 429 }
+    );
   }
 
   const { data: tender, error: tenderError } = await supabase

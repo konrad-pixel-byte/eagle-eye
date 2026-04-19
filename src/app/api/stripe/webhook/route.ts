@@ -36,6 +36,22 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
 
+  // Idempotency: claim this event.id atomically. If the insert conflicts,
+  // another delivery already processed (or is processing) this event.
+  const { error: claimError } = await supabase
+    .from("stripe_events")
+    .insert({ event_id: event.id, event_type: event.type });
+
+  if (claimError) {
+    // 23505 = unique_violation — event already claimed. Any other error is
+    // a real DB failure; return 500 so Stripe retries.
+    if (claimError.code === "23505") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    console.error("[stripe-webhook] claim failed:", claimError.message);
+    return NextResponse.json({ error: "Claim failed" }, { status: 500 });
+  }
+
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;

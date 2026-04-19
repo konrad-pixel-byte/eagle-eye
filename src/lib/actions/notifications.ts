@@ -2,14 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getResend, FROM_EMAIL } from "@/lib/resend";
-import {
-  renderNewTenderAlert,
-} from "@/lib/emails/new-tender-alert";
+import { renderNewTenderAlert } from "@/lib/emails/new-tender-alert";
 
 function getBaseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://eagle-eye.hatedapps.pl"
-  );
+  return process.env.NEXT_PUBLIC_APP_URL ?? "https://eagle-eye.hatedapps.pl";
 }
 
 export async function sendTenderAlert(
@@ -21,7 +17,7 @@ export async function sendTenderAlert(
   const { data: tender, error: tenderError } = await supabase
     .from("tenders")
     .select(
-      "id, title, contracting_authority, voivodeship, budget_max, submission_deadline, ai_score"
+      "id, title, contracting_authority, voivodeship, budget_max, deadline_submission, ai_relevance_score"
     )
     .eq("id", tenderId)
     .single();
@@ -48,13 +44,17 @@ export async function sendTenderAlert(
     return { success: false, error: "Brak adresu email użytkownika" };
   }
 
+  const rawScore = tender.ai_relevance_score;
+  const normalizedScore =
+    rawScore === null ? null : rawScore > 1 ? rawScore / 100 : rawScore;
+
   const html = renderNewTenderAlert({
     tenderTitle: tender.title,
     contractingAuthority: tender.contracting_authority ?? "Nieznany",
     voivodeship: tender.voivodeship ?? "Nieznane",
     budgetMax: tender.budget_max ?? null,
-    deadline: tender.submission_deadline ?? null,
-    aiScore: tender.ai_score ?? null,
+    deadline: tender.deadline_submission ?? null,
+    aiScore: normalizedScore,
     tenderId: tender.id,
     baseUrl: getBaseUrl(),
   });
@@ -62,7 +62,7 @@ export async function sendTenderAlert(
   const { error: sendError } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: profile.email,
-    subject: `Nowy przetarg: ${tender.title}`,
+    subject: `Nowy przetarg: ${tender.title.slice(0, 80)}`,
     html,
   });
 
@@ -73,9 +73,10 @@ export async function sendTenderAlert(
   const { error: alertError } = await supabase.from("alerts").insert({
     user_id: userId,
     tender_id: tenderId,
-    type: "new_tender",
+    channel: "email",
+    title: `Nowy przetarg: ${tender.title.slice(0, 120)}`,
+    body: tender.contracting_authority ?? null,
     read: false,
-    created_at: new Date().toISOString(),
   });
 
   if (alertError) {

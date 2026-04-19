@@ -20,6 +20,8 @@ import {
   Calculator,
   Trophy,
   Star,
+  Sparkles,
+  CreditCard,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -64,6 +66,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Statystyki", href: "/dashboard/statystyki", icon: BarChart3 },
   { label: "Osiągnięcia", href: "/dashboard/osiagniecia", icon: Trophy },
   { label: "Hall of Fame", href: "/dashboard/hall-of-fame", icon: Star },
+  { label: "Użycie AI", href: "/dashboard/uzycie", icon: Sparkles },
+  { label: "Rozliczenia", href: "/dashboard/rozliczenia", icon: CreditCard },
   { label: "Ustawienia", href: "/dashboard/ustawienia", icon: Settings },
 ]
 
@@ -285,6 +289,7 @@ export function DashboardShell({ children, user, unreadAlertCount = 0, userTier 
                 variant="ghost"
                 size="icon-sm"
                 aria-label={`Powiadomienia (${unreadAlertCount})`}
+                render={<Link href="/dashboard/powiadomienia" />}
               >
                 <Bell className="size-4" />
               </Button>
