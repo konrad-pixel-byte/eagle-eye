@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -38,6 +38,15 @@ export const metadata: Metadata = {
       "AI monitoring przetargów szkoleniowych BZP, TED, BUR i KFS.",
   },
   robots: { index: true, follow: true },
+};
+
+// Matches mobile browser chrome to the app's dark background. Light variant
+// covers system theme = light to avoid jarring white bars on iOS Safari.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 export default function RootLayout({
