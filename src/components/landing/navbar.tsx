@@ -36,7 +36,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav — minimal */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Główna nawigacja" className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -86,7 +86,7 @@ export function Navbar() {
           </SheetTrigger>
           <SheetContent side="right" className="w-72 bg-zinc-950 border-zinc-800">
             <SheetTitle className="sr-only">Menu nawigacyjne</SheetTitle>
-            <nav className="flex flex-col gap-4 pt-8">
+            <nav aria-label="Mobilna nawigacja" className="flex flex-col gap-4 pt-8">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
