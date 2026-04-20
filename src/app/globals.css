@@ -184,3 +184,16 @@
     margin: 2cm;
   }
 }
+
+/* Respect prefers-reduced-motion — cancels entrance animations and long
+   transitions without breaking essential UI state changes. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
