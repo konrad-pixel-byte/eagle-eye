@@ -1,7 +1,18 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { getGamificationState, getRecentXpEvents } from "@/lib/actions/gamification"
-import { BADGES, xpToNextLevel, LEVELS } from "@/lib/gamification"
+import {
+  getGamificationState,
+  getRecentXpEvents,
+  getMonthlyChallengesProgress,
+  claimMonthlyChallenge,
+} from "@/lib/actions/gamification"
+import {
+  BADGES,
+  MONTHLY_CHALLENGES,
+  xpToNextLevel,
+  LEVELS,
+  type BadgeDefinition,
+} from "@/lib/gamification"
 import {
   Card,
   CardContent,
@@ -10,17 +21,36 @@ import {
   CardDescription,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Flame, Star, Zap, Lock } from "lucide-react"
+import { Trophy, Flame, Star, Zap, Lock, CheckCircle2 } from "lucide-react"
 import { DailyTip } from "@/components/gamification/DailyTip"
+import { MonthlyChallengeCard } from "@/components/gamification/MonthlyChallengeCard"
+
+export const metadata = { title: "Osiągnięcia" }
+
+// Badge category display config
+const BADGE_CATEGORIES: Array<{
+  key: BadgeDefinition["category"]
+  label: string
+  emoji: string
+}> = [
+  { key: "onboarding", label: "Start",        emoji: "🚀" },
+  { key: "activity",   label: "Aktywność",    emoji: "🔍" },
+  { key: "saving",     label: "Zapisane",     emoji: "💾" },
+  { key: "streak",     label: "Streak",       emoji: "🔥" },
+  { key: "level",      label: "Poziomy",      emoji: "⭐" },
+  { key: "ai",         label: "AI",           emoji: "🤖" },
+  { key: "learning",   label: "Akademia",     emoji: "🎓" },
+]
 
 export default async function OsiagnieciaPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  const [state, recentEvents] = await Promise.all([
+  const [state, recentEvents, monthlyProgress] = await Promise.all([
     getGamificationState(),
     getRecentXpEvents(15),
+    getMonthlyChallengesProgress(),
   ])
 
   if (!state) {
@@ -39,7 +69,7 @@ export default async function OsiagnieciaPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Osiągnięcia</h1>
         <p className="mt-1 text-sm text-zinc-400">
-          Twój postęp, odznaczenia i statystyki aktywności
+          Twój postęp, odznaczenia i wyzwania miesięczne
         </p>
       </div>
 
@@ -66,7 +96,7 @@ export default async function OsiagnieciaPage() {
         />
         <StatCard
           icon={<Star className="size-5 text-sky-500" />}
-          value={String(state.badges.length)}
+          value={`${state.badges.length} / ${BADGES.length}`}
           label="Odznaczenia"
           mono
         />
@@ -104,7 +134,89 @@ export default async function OsiagnieciaPage() {
         </CardContent>
       </Card>
 
-      {/* All levels roadmap */}
+      {/* ── Monthly Challenges ──────────────────────────────────────────────── */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Wyzwania Miesięczne</h2>
+          <span className="text-xs text-zinc-500">
+            Resetują się 1. każdego miesiąca
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {monthlyProgress.map(({ challenge, progress: prog, claimed, completed }) => (
+            <MonthlyChallengeCard
+              key={challenge.id}
+              challengeId={challenge.id}
+              emoji={challenge.emoji}
+              title={challenge.title}
+              description={challenge.description}
+              progress={prog}
+              target={challenge.target}
+              xpReward={MONTHLY_CHALLENGES.find((c) => c.id === challenge.id)?.xpReward ?? "monthly_reader"}
+              claimed={claimed}
+              completed={completed}
+              claimAction={claimMonthlyChallenge}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Badges by category ──────────────────────────────────────────────── */}
+      <section>
+        <h2 className="mb-4 text-base font-semibold">Odznaczenia</h2>
+        <div className="flex flex-col gap-6">
+          {BADGE_CATEGORIES.map(({ key, label, emoji }) => {
+            const categoryBadges = BADGES.filter((b) => b.category === key)
+            const earned = categoryBadges.filter((b) => state.badges.includes(b.id))
+            return (
+              <div key={key}>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-base">{emoji}</span>
+                  <span className="text-sm font-medium text-zinc-300">{label}</span>
+                  <span className="ml-auto font-mono text-xs text-zinc-500">
+                    {earned.length}/{categoryBadges.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {categoryBadges.map((badge) => {
+                    const isEarned = state.badges.includes(badge.id)
+                    return (
+                      <div
+                        key={badge.id}
+                        className={`flex items-start gap-3 rounded-xl border p-4 transition-all ${
+                          isEarned
+                            ? "border-zinc-700 bg-zinc-900"
+                            : "border-zinc-800/60 bg-zinc-900/30 opacity-50 grayscale"
+                        }`}
+                      >
+                        <span className="mt-0.5 text-2xl">{badge.emoji}</span>
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-sm text-foreground">
+                            {badge.name}
+                          </p>
+                          <p className="mt-0.5 text-xs text-zinc-500 line-clamp-2">
+                            {badge.description}
+                          </p>
+                          {isEarned && (
+                            <Badge
+                              variant="outline"
+                              className="mt-2 border-emerald-800 bg-emerald-950/30 text-emerald-400 text-xs"
+                            >
+                              Zdobyte
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ── Level roadmap ────────────────────────────────────────────────────── */}
       <Card className="border-zinc-800 bg-zinc-900/50">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Mapa Poziomów</CardTitle>
@@ -139,6 +251,9 @@ export default async function OsiagnieciaPage() {
                       TY
                     </Badge>
                   )}
+                  {isReached && !isCurrent && (
+                    <CheckCircle2 className="size-3.5 text-emerald-500" />
+                  )}
                   {!isReached && <Lock className="size-3 text-zinc-600" />}
                 </div>
               )
@@ -147,45 +262,7 @@ export default async function OsiagnieciaPage() {
         </CardContent>
       </Card>
 
-      {/* Badges grid */}
-      <div>
-        <h2 className="mb-4 text-base font-semibold">Odznaczenia</h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {BADGES.map((badge) => {
-            const earned = state.badges.includes(badge.id)
-            return (
-              <div
-                key={badge.id}
-                className={`flex items-start gap-3 rounded-xl border p-4 transition-all ${
-                  earned
-                    ? "border-zinc-700 bg-zinc-900"
-                    : "border-zinc-800/60 bg-zinc-900/30 opacity-50 grayscale"
-                }`}
-              >
-                <span className="mt-0.5 text-2xl">{badge.emoji}</span>
-                <div>
-                  <p className="font-medium text-sm text-foreground">
-                    {badge.name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-zinc-500">
-                    {badge.description}
-                  </p>
-                  {earned && (
-                    <Badge
-                      variant="outline"
-                      className="mt-2 border-emerald-800 bg-emerald-950/30 text-emerald-400 text-xs"
-                    >
-                      Zdobyte
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Recent XP events */}
+      {/* ── Recent XP events ─────────────────────────────────────────────────── */}
       {recentEvents.length > 0 && (
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardHeader>
@@ -223,11 +300,18 @@ export default async function OsiagnieciaPage() {
 }
 
 const EVENT_LABELS: Record<string, string> = {
-  tender_view: "Przejrzano przetarg",
-  daily_login: "Dzienne logowanie",
-  streak_bonus: "Bonus za streak",
-  save_tender: "Zapisano przetarg",
-  complete_onboarding: "Onboarding ukończony",
+  tender_view:          "Przejrzano przetarg",
+  daily_login:          "Dzienne logowanie",
+  streak_bonus:         "Bonus za streak",
+  save_tender:          "Zapisano przetarg",
+  complete_onboarding:  "Onboarding ukończony",
+  complete_module:      "Moduł ukończony",
+  complete_lesson:      "Lekcja ukończona",
+  ai_analysis:          "Analiza AI",
+  monthly_reader:       "Wyzwanie: Aktywny Czytelnik",
+  monthly_saver:        "Wyzwanie: Kolekcjoner Miesiąca",
+  monthly_ai:           "Wyzwanie: Analityk AI",
+  monthly_learner:      "Wyzwanie: Uczeń Miesiąca",
 }
 
 function StatCard({

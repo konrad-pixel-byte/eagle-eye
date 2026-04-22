@@ -13,6 +13,7 @@ import { getBookmarkCount } from "@/lib/actions/bookmarks"
 import { getGamificationState, updateLoginStreak } from "@/lib/actions/gamification"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner"
+import { StreakNotification } from "@/components/gamification/StreakNotification"
 import type { SubscriptionTier } from "@/lib/subscription"
 
 export default async function DashboardLayout({
@@ -29,7 +30,8 @@ export default async function DashboardLayout({
     redirect("/auth/login")
   }
 
-  void updateLoginStreak()
+  // Await streak so we can surface new-badge toasts to the client
+  const streakResult = await updateLoginStreak()
 
   const [unreadCount, bookmarkCount, profileResult, gamificationState] = await Promise.all([
     getUnreadAlertCount(),
@@ -62,6 +64,7 @@ export default async function DashboardLayout({
       userTier={userTier}
       gamificationState={gamificationState}
     >
+      <StreakNotification streak={streakResult.streak} newBadges={streakResult.newBadges} />
       {emailUnverified && user.email && (
         <div className="mb-4">
           <EmailVerificationBanner email={user.email} />

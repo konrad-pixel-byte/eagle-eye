@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { scoreTender, summarizeTender, generateBidAdvice } from "@/lib/ai/tender-analysis";
+import { recordAiAnalysis } from "@/lib/actions/gamification";
 import type { Tender } from "@/lib/types";
 import { getAiQuota, type AiEndpoint, type SubscriptionTier } from "@/lib/subscription";
 
@@ -140,6 +141,7 @@ export async function POST(req: NextRequest) {
       .update({ ai_relevance_score: result.score })
       .eq("id", tenderId);
 
+    void recordAiAnalysis();
     return NextResponse.json({ result });
   }
 
@@ -154,6 +156,7 @@ export async function POST(req: NextRequest) {
       .update({ ai_summary: summary })
       .eq("id", tenderId);
 
+    void recordAiAnalysis();
     return NextResponse.json({ result: summary });
   }
 
@@ -163,6 +166,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI analysis failed" }, { status: 500 });
     }
 
+    void recordAiAnalysis();
     return NextResponse.json({ result: advice });
   }
 
